@@ -37,52 +37,16 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx;
+package webfx.app;
 
-import javafx.collections.ObservableMap;
-import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import java.net.URL;
 
 /**
  *
  * @author bruno
  */
-public class BrowserShortcuts {
-
-    private final Scene scene;
-
-    public BrowserShortcuts(Scene scene) {
-        this.scene = scene;
-    }
-
-    public void setup(final BrowserFXController controller) {
-        final ObservableMap<KeyCombination, Runnable> accelerators = scene.getAccelerators();
-
-        accelerators.put(
-                new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
-                new Runnable() {
-            @Override
-            public void run() {
-                controller.newTab();
-            }
-        });
-        accelerators.put(
-                new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
-                new Runnable() {
-            @Override
-            public void run() {
-                controller.closeTab();
-            }
-        });
-        accelerators.put(
-                new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN),
-                new Runnable() {
-            @Override
-            public void run() {
-                System.exit(0);
-            }
-        });
-    }
+public interface WindowContext {
+    
+    public void openInNewTab(URL url);
+    
 }

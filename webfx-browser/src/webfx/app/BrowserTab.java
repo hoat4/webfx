@@ -37,11 +37,15 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx;
+package webfx.app;
 
 import com.webfx.NavigationContext;
+import com.webfx.PageContext;
+import java.net.URL;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
 
 /**
@@ -50,18 +54,32 @@ import javafx.scene.Node;
  */
 public interface BrowserTab {
 
-    public ObjectProperty<Node> contentProperty();
+    ObjectProperty<Node> contentProperty();
 
-    public ReadOnlyStringProperty titleProperty();
+    ReadOnlyStringProperty titleProperty();
 
-    public ReadOnlyStringProperty locationProperty();
+    ReadOnlyStringProperty locationProperty();
 
-    public void stop();
-    
-    public boolean isStoppable();
+    void stop();
 
-    public void setTabManager(TabManager tm);
+    boolean isStoppable();
 
-    public NavigationContext getNavigationContext();
+    boolean isLoading();
+
+    void setWindowContext(WindowContext tm);
+
+    ObservableBooleanValue hasHistoryBack();
+
+    ObservableBooleanValue hasHistoryForward();
+
+    void go(URL destination, String originalURL);
+
+    void back();
+
+    void forward();
+
+    void reload();
+
+    PageContext getPageContext();
 
 }

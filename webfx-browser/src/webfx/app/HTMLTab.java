@@ -37,19 +37,25 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx;
+package webfx.app;
 
 import com.webfx.NavigationContext;
+import com.webfx.PageContext;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.scene.Node;
@@ -68,45 +74,61 @@ import org.w3c.dom.html.HTMLAnchorElement;
  */
 public class HTMLTab implements BrowserTab {
 
-    final WebView browser;
-    final WebEngine webEngine;
+    private final WebView browser;
+    private final WebEngine webEngine;
     private SimpleObjectProperty<Node> contentProperty;
-    private TabManager tabManager;
+    private WindowContext tabManager;
+    private boolean isLoading;
+    private final ObservableBooleanValue hasHistoryBack;
+    private final SimpleBooleanProperty hasHistoryForward = new SimpleBooleanProperty();
 
-    public HTMLTab() {
+    public HTMLTab(BrowserFXController app) {
         browser = new WebView();
         webEngine = browser.getEngine();
+        this.hasHistoryBack = webEngine.getHistory().currentIndexProperty().greaterThan(0);
+        webEngine.getHistory().currentIndexProperty().addListener(new InvalidationListener() {
+
+            @Override
+            public void invalidated(Observable observable) {
+                hasHistoryForward.set(webEngine.getHistory().getCurrentIndex() < webEngine.getHistory().getEntries().size() - 1);
+            }
+        });
         contentProperty = new SimpleObjectProperty<>((Node) browser);
         webEngine.getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
             @Override
             public void changed(ObservableValue<? extends State> ov, State oldv, State newv) {
                 if (newv == State.SUCCEEDED) {
+                    isLoading = false;
+                    app.stop();
                     Document document = (Document) webEngine.executeScript("document");
                     NodeList nodeList = document.getElementsByTagName("a");
                     for (int i = 0; i < nodeList.getLength(); i++) {
                         EventTarget n = (EventTarget) nodeList.item(i);
-                        n.addEventListener("click", new EventListener() {
-                            @Override
-                            public void handleEvent(Event event) {
-                                EventTarget eventTarget = event.getTarget();
+                        n.addEventListener("click", (Event event) -> {
+                            EventTarget eventTarget = event.getTarget();
 
-                                if (eventTarget instanceof HTMLAnchorElement == false) {
-                                    return;
-                                }
+                            if (eventTarget instanceof HTMLAnchorElement == false)
+                                return;
 
-                                HTMLAnchorElement hrefObj = (HTMLAnchorElement) event.getTarget();
-                                String href = hrefObj.getHref();
-                                if (href.endsWith(".fxml")) {
-                                    try {
-                                        getTabManager().openInNewTab(new URL(href));
-                                    } catch (MalformedURLException ex) {
-                                        Logger.getLogger(HTMLTab.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                    event.preventDefault();
+                            HTMLAnchorElement hrefObj = (HTMLAnchorElement) event.getTarget();
+                            String href = hrefObj.getHref();
+                            if (href.endsWith(".fxml")) {
+                                try {
+                                    System.out.println("OPENING IN NEW TAB" + href);
+                                    getTabManager().openInNewTab(new URL(href));
+                                } catch (MalformedURLException ex) {
+                                    Logger.getLogger(HTMLTab.class.getName()).log(Level.SEVERE, null, ex);
                                 }
+                                event.preventDefault();
                             }
                         }, true);
                     }
+                } else if (newv == State.FAILED || newv == State.READY || newv == State.CANCELLED) {
+                    isLoading = false;
+                    app.stop();
+                } else {
+                    isLoading = true;
+                    app.tabLoading();
                 }
             }
         });
@@ -137,48 +159,63 @@ public class HTMLTab implements BrowserTab {
     }
 
     @Override
-    public void setTabManager(TabManager tm) {
+    public void setWindowContext(WindowContext tm) {
         this.tabManager = tm;
     }
 
-    public TabManager getTabManager() {
+    public WindowContext getTabManager() {
         return tabManager;
-    }
-
-    @Override
-    public NavigationContext getNavigationContext() {
-        return new NavigationContext() {
-
-            @Override
-            public void reload() {
-                webEngine.reload();
-            }
-
-            @Override
-            public void back() {
-                webEngine.executeScript("history.back()");
-            }
-
-            @Override
-            public void forward() {
-                webEngine.executeScript("history.forward()");
-            }
-
-            @Override
-            public void goTo(URL url) {
-                goTo(url.toString());
-            }
-
-            @Override
-            public void goTo(String location) {
-                webEngine.load(location);
-            }
-
-        };
     }
 
     @Override
     public boolean isStoppable() {
         return true;
+    }
+
+    @Override
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    @Override
+    public void go(URL destination, String originalURL) {
+        webEngine.load(destination.toExternalForm());
+    }
+
+    @Override
+    public PageContext getPageContext() {
+        if (webEngine.getLocation().isEmpty())
+            return null;
+        else
+            try {
+                return new PageContext(new URL(webEngine.getLocation()));
+            } catch (MalformedURLException ex) {
+                throw new RuntimeException(ex);
+            }
+    }
+
+    @Override
+    public ObservableBooleanValue hasHistoryBack() {
+        return hasHistoryBack;
+    }
+
+    @Override
+    public ObservableBooleanValue hasHistoryForward() {
+        return hasHistoryForward;
+    }
+
+    @Override
+    public void back() {
+        webEngine.executeScript("history.back()");
+    }
+
+    @Override
+    public void forward() {
+        webEngine.executeScript("history.forward()");
+    }
+
+    @Override
+    public void reload() {
+        webEngine.reload();
     }
 }

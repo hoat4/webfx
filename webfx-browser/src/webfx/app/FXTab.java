@@ -37,15 +37,18 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx;
+package webfx.app;
 
 import com.webfx.NavigationContext;
+import com.webfx.PageContext;
 import com.webfx.WebFXRegion;
+import java.net.URL;
 import java.util.Locale;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
 
 /**
@@ -53,19 +56,19 @@ import javafx.scene.Node;
  * @author Bruno Borges <bruno.borges at oracle.com>
  */
 public class FXTab implements BrowserTab {
-
     private final ReadOnlyStringWrapper locationProperty = new ReadOnlyStringWrapper();
     private final SimpleObjectProperty<Node> contentProperty = new SimpleObjectProperty<>();
     private final WebFXRegion webfx;
-    private TabManager tabManager;
+    private WindowContext tabManager;
 
-    public FXTab() {
-        webfx = new WebFXRegion();
+    public FXTab(NavigationContext nav) {
+        webfx = new WebFXRegion(nav);
+        locationProperty.bind(webfx.locationProperty());
         contentProperty.set(webfx);
     }
 
-    FXTab(Locale locale) {
-        this();
+    FXTab(Locale locale, NavigationContext nav) {
+        this(nav);
         webfx.setLocale(locale);
     }
 
@@ -78,7 +81,10 @@ public class FXTab implements BrowserTab {
     public ReadOnlyStringProperty titleProperty() {
         return webfx.getCurrentViewTitleProperty();
     }
-
+    public FXTab setTitle(String title) {
+        webfx.getCurrentViewTitleProperty().set(title);
+        return this;
+    }
     @Override
     public ReadOnlyStringProperty locationProperty() {
         return locationProperty;
@@ -90,18 +96,52 @@ public class FXTab implements BrowserTab {
     }
 
     @Override
-    public void setTabManager(TabManager tm) {
+    public void setWindowContext(WindowContext tm) {
         this.tabManager = tm;
-    }
-
-    @Override
-    public NavigationContext getNavigationContext() {
-        return webfx.getNavigationContext();
     }
 
     @Override
     public boolean isStoppable() {
         return false;
+    }
+
+    @Override
+    public boolean isLoading() {
+        return false;
+    }
+
+    @Override
+    public void go(URL destination, String originalURL) {
+        webfx.loadUrl(destination, originalURL.startsWith("chrome://"));
+    }
+
+    @Override
+    public PageContext getPageContext() {
+        return webfx.getPageContext();
+    }
+
+    @Override
+    public ObservableBooleanValue hasHistoryBack() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ObservableBooleanValue hasHistoryForward() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void back() {
+        
+    }
+
+    @Override
+    public void forward() {
+    }
+
+    @Override
+    public void reload() {
+        webfx.load();
     }
 
 }

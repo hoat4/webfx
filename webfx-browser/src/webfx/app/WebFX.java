@@ -37,8 +37,9 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx;
+package webfx.app;
 
+import com.webfx.PluginRegistry;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -49,20 +50,26 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import webfx.internalextensions.AnalogClock;
+import webfx.internalextensions.NetworkInfo;
+import webfx.internalextensions.SearchGoogle;
 
 /**
  *
  * @author bruno
  */
 public class WebFX extends Application {
-
     private static final Logger LOGGER = Logger.getLogger(WebFX.class.getName());
-
+    static {
+        PluginRegistry.putExtension("clock.analog", AnalogClock::new);
+        PluginRegistry.putExtension("network.info", NetworkInfo::new);
+        PluginRegistry.putExtension("search.google", SearchGoogle::new);
+    }
     @Override
     public void start(Stage stage) throws Exception {
         Locale locale = getCurrentLocale();
 
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("browser.fxml"), ResourceBundle.getBundle("webfx/browser", locale));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("browser.fxml"), ResourceBundle.getBundle("webfx/app/browser", locale));
         Parent root = (Parent) fxmlLoader.load();
 
         BrowserFXController controller = fxmlLoader.getController();

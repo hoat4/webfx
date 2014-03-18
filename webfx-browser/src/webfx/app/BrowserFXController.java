@@ -37,20 +37,26 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx;
+package webfx.app;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
@@ -62,8 +68,9 @@ import javafx.scene.image.ImageView;
 /**
  *
  * @author Bruno Borges at oracle.com
+ * @author attila at hontvari.net
  */
-public class BrowserFXController implements TabManager {
+public class BrowserFXController implements WindowContext {
 
     private static final Logger LOGGER = Logger.getLogger(BrowserFXController.class.getName());
     /**
@@ -73,8 +80,6 @@ public class BrowserFXController implements TabManager {
     private TabPane tabPane;
     @FXML
     private TextField urlField;
-    @FXML
-    private MenuItem closeTab;
     @FXML
     private Button stopButton;
     @FXML
@@ -88,7 +93,7 @@ public class BrowserFXController implements TabManager {
      */
     private SingleSelectionModel<Tab> selectionTab;
     private final ConcurrentHashMap<Integer, BrowserTab> browserMap = new ConcurrentHashMap<>();
-    private Locale locale;
+    Locale locale;
 
     public void exit() {
         LOGGER.info("Exiting...");
@@ -98,24 +103,30 @@ public class BrowserFXController implements TabManager {
     public void newTab() {
         Tab tab = new Tab("New tab");
         tab.setClosable(true);
-        tabPane.getTabs().add(tab);
-        selectionTab.selectLast();
+        tabPane.getTabs().add(tabPane.getTabs().size() - 1, tab);
+        selectionTab.select(tabPane.getTabs().size() - 2);
+        openPage("chrome://newtab", "New tab");
+    }
+
+    public void tabLoading() {
+        stopButton.setDisable(false);
     }
 
     public void stop() {
         selectedBrowserTab().stop();
+        stopButton.setDisable(true);
     }
 
     public void reload() {
-        selectedBrowserTab().getNavigationContext().reload();
+        selectedBrowserTab().reload();
     }
 
     public void back() {
-        selectedBrowserTab().getNavigationContext().back();
+        selectedBrowserTab().back();
     }
 
     public void forward() {
-        selectedBrowserTab().getNavigationContext().forward();
+        selectedBrowserTab().forward();
     }
 
     public void closeTab() {
@@ -132,61 +143,53 @@ public class BrowserFXController implements TabManager {
     }
 
     public void openPage(String location) {
-        URLVerifier urlVerifier = null;
+  //      System.out.println("**************************"+location);
+//        Platform.runLater(()->     urlField.setText(location));
+        openPage(location, "Untitled");
+    }
 
-        try {
-            urlVerifier = new URLVerifier(location);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(BrowserFXController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public void openPage(String location, String title) {
+        if (!location.startsWith("http://") && !location.startsWith("https://") && !location.startsWith("chrome://"))
+            location = "http://" + location;
 
-        if (urlVerifier == null) {
-            return;
-        }
 
-        final URL url = urlVerifier.getLocation();
-        final boolean isFxml = urlVerifier.isFxml();
-
+        final String newloc = location;
         Platform.runLater(() -> {
-            BrowserTab browserTab;
-            if (isFxml) {
-                browserTab = new FXTab(locale);
-                browserTab.getNavigationContext().goTo(url);
-            } else {
-                browserTab = new HTMLTab();
-                browserTab.getNavigationContext().goTo(url);
-            }
+            BrowserTab impl;
+            SwitchableTab tab = new SwitchableTab(this);
+            
+            tab.goTo(newloc);
 
-            browserTab.setTabManager(this);
-            selectionTab.getSelectedItem().contentProperty().bind(browserTab.contentProperty());
-            browserMap.put(selectionTab.getSelectedIndex(), browserTab);
-            urlField.textProperty().bind(browserTab.locationProperty());
-            stopButton.disableProperty().set(!browserTab.isStoppable());
-            selectionTab.getSelectedItem().textProperty().bind(browserTab.titleProperty());
-            LOGGER.log(Level.INFO, "Title used for new tab: {0}", browserTab.titleProperty().get());
+            selectionTab.getSelectedItem().contentProperty().bind(tab.contentProperty());
+            browserMap.put(selectionTab.getSelectedIndex(), tab);
+            System.err.println("Put new tab @ " + selectionTab.getSelectedIndex());
+            urlField.textProperty().bind(tab.locationProperty());
+            stopButton.disableProperty().set(!tab.isStoppable());
+            selectionTab.getSelectedItem().textProperty().bind(tab.titleProperty());
+            LOGGER.log(Level.INFO, "Title used for new tab: {0}", tab.titleProperty().get());
+            
         });
     }
 
     public void initialize() {
+        reloadButton.disableProperty().bind(stopButton.disabledProperty().not());
         urlField.focusedProperty().addListener((ov, oldValue, newValue) -> {
-            if (newValue.booleanValue()) {
+            if (newValue.booleanValue())
                 urlField.textProperty().unbind();
-            } else if (selectedBrowserTab() != null) {
+            else if (selectedBrowserTab() != null)
                 urlField.textProperty().bind(selectedBrowserTab().locationProperty());
-            }
         });
 
         tabPane.getTabs().addListener((ListChangeListener.Change<? extends Tab> change) -> {
             ObservableList<? extends Tab> tabs = change.getList();
 
             // disabled the close tab menu item if selected tab is not cloeable
-            closeTab.disableProperty().bind(selectionTab.getSelectedItem().closableProperty().not());
-
+            //closeTab.disableProperty().bind(selectionTab.getSelectedItem().closableProperty().not());
             // set the first tab closeable if more than one tab
-            tabs.get(0).setClosable(tabs.size() > 1);
+            tabs.get(0).setClosable(tabs.size() > 2);
 
             // set others tab closeable, if they exist
-            for (int i = 1; i < tabs.size(); i++) {
+            for (int i = 1; i < tabs.size() - 1; i++) {
                 tabs.get(i).setClosable(true);
             }
         });
@@ -195,14 +198,16 @@ public class BrowserFXController implements TabManager {
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             LOGGER.info("Tab selection changed");
-            if (selectedBrowserTab() == null) {
+            BrowserTab selectedBrowserTab = selectedBrowserTab();
+            if (selectedBrowserTab == null) {
                 LOGGER.info("No tab selected");
                 urlField.textProperty().unbind();
                 urlField.textProperty().setValue("");
                 urlField.setText("");
             } else {
                 LOGGER.info("There's a tab selected");
-                urlField.textProperty().bind(selectedBrowserTab().locationProperty());
+                urlField.textProperty().bind(selectedBrowserTab.locationProperty());
+                stopButton.setDisable(!selectedBrowserTab.isLoading());
             }
         });
 
@@ -211,10 +216,23 @@ public class BrowserFXController implements TabManager {
         setButtonIcon(backButton, "left", size);
         setButtonIcon(forwardButton, "right", size);
         setButtonIcon(reloadButton, "clock", size);
+
+        plusTab.setClosable(false);
+        plusTab.setContent(new Label());
+        tabPane.getTabs().add(plusTab);
+        plusTab.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue)
+                    newTab();
+            }
+        });
+        newTab();
     }
 
     private void setButtonIcon(Button button, String icon, int size) {
-        InputStream is = getClass().getResourceAsStream("icons/" + icon + "_" + size + ".png");
+        InputStream is = getClass().getResourceAsStream("/webfx/icons/" + icon + "_" + size + ".png");
         Image block = new Image(is);
         ImageView iv = new ImageView(block);
         button.setGraphic(iv);
@@ -226,6 +244,7 @@ public class BrowserFXController implements TabManager {
 
     @Override
     public void openInNewTab(URL url) {
+        System.out.println("OPEN IN NEW TAB"+url);
         newTab();
         openPage(url.toString());
     }
@@ -233,5 +252,7 @@ public class BrowserFXController implements TabManager {
     void setLocale(Locale locale) {
         this.locale = locale;
     }
+
+    private final Tab plusTab = new Tab("+");
 
 }

@@ -37,9 +37,11 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx;
+package webfx.app;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,26 +52,25 @@ import java.util.logging.Logger;
  */
 public class URLVerifier {
 
-    private URL location;
-    private URL basePath;
+    private URI location;
+    private URI basePath;
     private String pageName;
     private boolean fxml;
 
-    public URLVerifier(String location) throws MalformedURLException {
-        if (!location.startsWith("http://") && !location.startsWith("https://")) {
+    public URLVerifier(String location) throws URISyntaxException {
+        if (!location.startsWith("http://") && !location.startsWith("https://") && !location.startsWith("chrome://"))
             location = "http://" + location;
-        }
 
-        this.location = new URL(location);
+        this.location = new URI(location);
         this.basePath = extractBasePath();
     }
 
-    public URLVerifier(URL location) {
+    public URLVerifier(URI location) throws URISyntaxException {
         this.location = location;
         this.basePath = extractBasePath();
     }
 
-    private URL extractBasePath() {
+    private URI extractBasePath() throws URISyntaxException {
         int lastSlash = location.getPath().lastIndexOf('/');
 
         if (lastSlash == -1) {
@@ -79,13 +80,9 @@ public class URLVerifier {
 
         String file = location.getPath();
         String path = file.substring(0, lastSlash);
-        URL base = null;
+        URI base = null;
 
-        try {
-            base = new URL(location.getProtocol(), location.getHost(), location.getPort(), path);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(URLVerifier.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        base = new URI(location.getScheme(), null, location.getHost(), location.getPort(), path, null, null);
 
         pageName = file.substring(lastSlash + 1);
         int indexOfExtension = pageName.indexOf('.');
@@ -101,11 +98,11 @@ public class URLVerifier {
         return base;
     }
 
-    public URL getBasePath() {
+    public URI getBasePath() {
         return basePath;
     }
 
-    public URL getLocation() {
+    public URI getLocation() {
         return location;
     }
 
@@ -118,5 +115,9 @@ public class URLVerifier {
 
     public boolean isFxml() {
         return fxml;
+    }
+
+    public static boolean isFXML(String url) {
+        return url.endsWith(".fxml") || url.startsWith("chrome://");
     }
 }
