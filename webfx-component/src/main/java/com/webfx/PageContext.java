@@ -60,9 +60,8 @@ public class PageContext {
     }
 
     private void extractBasePath() {
-        if (location.getPath() == null) {
+        if (location.getPath() == null)
             return;
-        }
 
         int lastSlash = location.getPath().lastIndexOf('/');
 
@@ -86,9 +85,8 @@ public class PageContext {
         if (indexOfExtension != 1) {
             String extension = file.substring(file.lastIndexOf('.') + 1);
 
-            if (!"fxml".equals(extension)) {
+            if (!"fxml".equals(extension))
                 throw new IllegalArgumentException("This component only loads FXML pages. Point the URL property to an FXML file");
-            }
 
             pageName = pageName.substring(0, indexOfExtension);
         }

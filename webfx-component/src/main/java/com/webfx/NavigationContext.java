@@ -39,19 +39,15 @@
  */
 package com.webfx;
 
-import java.net.URL;
 
 /**
  *
  * @author Bruno Borges <bruno.borges at oracle.com>
  */
 public interface NavigationContext {
-
     public void forward();
 
     public void back();
-
-    public void goTo(URL url);
 
     public void goTo(String url);
     

@@ -46,6 +46,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.AnchorPane;
 
 /**
@@ -57,28 +59,37 @@ public final class WebFXRegion extends AnchorPane {
     private URL url;
     private WebFXView defaultView;
     private final NavigationContext navigationContext;
-    private final ReadOnlyStringProperty currentTitle = new SimpleStringProperty();
+    private final SimpleStringProperty currentTitle = new SimpleStringProperty();
     private Locale locale;
+    private final SimpleStringProperty locProp = new SimpleStringProperty("<null URL>");
 
-    public WebFXRegion() {
-        navigationContext = new NavigationContextImpl();
+    public WebFXRegion(NavigationContext n) {
+        navigationContext = n;
     }
 
-    public WebFXRegion(URL url) {
-        this();
-        loadUrl(url);
+    public ReadOnlyStringProperty locationProperty() {
+        return locProp;
     }
 
-    public ReadOnlyStringProperty getCurrentViewTitleProperty() {
+    public WebFXRegion(URL url, boolean hideURL, NavigationContext baseNavContext) {
+        this(baseNavContext);
+        loadUrl(url, hideURL);
+    }
+
+    public SimpleStringProperty getCurrentViewTitleProperty() {
         return currentTitle;
     }
 
-    public final void setUrl(URL url) {
+    public final void setUrl(URL url, boolean hideURL) {
         this.url = url;
+        if (hideURL)
+            locProp.set("");
+        else
+            locProp.set(url.toExternalForm());
     }
 
-    public void loadUrl(URL url) {
-        setUrl(url);
+    public void loadUrl(URL url, boolean hideURL) {
+        setUrl(url, hideURL);
         load();
     }
 
@@ -95,7 +106,10 @@ public final class WebFXRegion extends AnchorPane {
         setLeftAnchor(defaultView, 0.0);
         setBottomAnchor(defaultView, 0.0);
 
-        ((SimpleStringProperty) currentTitle).bind(defaultView.getTitleProperty());
+        defaultView.getTitleProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            System.out.println("Changing WebFXRegion's title " + oldValue + " to " + newValue);
+            ((SimpleStringProperty) currentTitle).set(defaultView.getTitleProperty().get());
+        });
     }
 
     public NavigationContext getNavigationContext() {
@@ -106,48 +120,8 @@ public final class WebFXRegion extends AnchorPane {
         this.locale = locale;
     }
 
-    private class NavigationContextImpl implements NavigationContext {
-
-        @Override
-        public void forward() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void back() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void goTo(URL url) {
-            WebFXRegion.this.loadUrl(url);
-        }
-
-        @Override
-        public void goTo(String url) {
-            URL destination = null;
-            if (url.startsWith("file:/") || url.startsWith("jar:/") || url.startsWith("wfx:/") || url.startsWith("http:/") || url.startsWith("https:/")) {
-                try {
-                    destination = new URL(url);
-                } catch (MalformedURLException ex) {
-                    Logger.getLogger(WebFXView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            } else {
-                URL basePath = defaultView.getPageContext().getBasePath();
-                try {
-                    destination = new URL(basePath.toString() + "/" + url);
-                } catch (MalformedURLException ex) {
-                    Logger.getLogger(WebFXView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-
-            goTo(destination);
-        }
-
-        @Override
-        public void reload() {
-            WebFXRegion.this.load();
-        }
+    public PageContext getPageContext() {
+        return defaultView.getPageContext();
     }
 
 }
