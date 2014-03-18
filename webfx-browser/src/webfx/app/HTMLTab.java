@@ -39,6 +39,7 @@
  */
 package webfx.app;
 
+import com.webfx.WindowContext;
 import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import java.net.MalformedURLException;

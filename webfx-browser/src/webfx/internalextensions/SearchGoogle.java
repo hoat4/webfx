@@ -6,6 +6,7 @@
 
 package webfx.internalextensions;
 
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import javafx.scene.image.Image;
 import webfx.Adapter;
@@ -23,8 +24,8 @@ public class SearchGoogle {
     public Image getLogo() {
         return LOGO;
     }
-    public void search(String text)  {
-        context.nav.goTo("http://www.google.com/search?q="+URLEncoder.encode(text)+"&ie=utf-8&oe=utf-8&aq=t");
+    public void search(String text) throws MalformedURLException  {
+        context.impl_openInNewTab("http://www.google.com/search?q="+URLEncoder.encode(text)+"&ie=utf-8&oe=utf-8&aq=t");
     }
             
 }

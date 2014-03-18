@@ -39,6 +39,7 @@
  */
 package webfx.app;
 
+import com.webfx.WindowContext;
 import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import com.webfx.WebFXRegion;
@@ -61,14 +62,14 @@ public class FXTab implements BrowserTab {
     private final WebFXRegion webfx;
     private WindowContext tabManager;
 
-    public FXTab(NavigationContext nav) {
-        webfx = new WebFXRegion(nav);
+    public FXTab(NavigationContext nav, WindowContext window) {
+        webfx = new WebFXRegion(nav, window);
         locationProperty.bind(webfx.locationProperty());
         contentProperty.set(webfx);
     }
 
-    FXTab(Locale locale, NavigationContext nav) {
-        this(nav);
+    FXTab(Locale locale, NavigationContext nav, WindowContext window) {
+        this(nav, window);
         webfx.setLocale(locale);
     }
 

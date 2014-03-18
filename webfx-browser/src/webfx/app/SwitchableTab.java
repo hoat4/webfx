@@ -5,6 +5,7 @@
  */
 package webfx.app;
 
+import com.webfx.WindowContext;
 import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import com.webfx.WebFXView;
@@ -146,7 +147,7 @@ private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
         URL destination = null;
         BrowserTab impl;
         if (URLVerifier.isFXML(url))
-            impl = new FXTab(locale, this).setTitle(title);
+            impl = new FXTab(locale, this, app).setTitle(title);
         else
             impl = new HTMLTab(app);
         tab = impl;

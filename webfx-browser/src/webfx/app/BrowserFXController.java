@@ -39,6 +39,7 @@
  */
 package webfx.app;
 
+import com.webfx.WindowContext;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

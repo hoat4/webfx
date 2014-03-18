@@ -39,6 +39,7 @@
  */
 package webfx.app;
 
+import com.webfx.WindowContext;
 import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import java.net.URL;
@@ -52,7 +53,7 @@ import javafx.scene.Node;
  *
  * @author bruno
  */
-public interface BrowserTab {
+interface BrowserTab {
 
     ObjectProperty<Node> contentProperty();
 
