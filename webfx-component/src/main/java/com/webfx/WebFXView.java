@@ -86,7 +86,7 @@ public class WebFXView extends AnchorPane {
     private final SimpleObjectProperty<URL> urlProperty = new SimpleObjectProperty<>();
     private NavigationContext navigationContext;
     private final ReadOnlyStringProperty titleProperty = new SimpleStringProperty();
-
+    public WindowContext window;
     public WebFXView() {
         setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         getStyleClass().add("webfx-view");
@@ -141,7 +141,7 @@ public class WebFXView extends AnchorPane {
 
         fxmlLoader = new FXMLLoader(pageContext.getLocation(), resourceBundle);
         fxmlLoader.setClassLoader(new URLClassLoader(((URLClassLoader) getClass().getClassLoader()).getURLs()));
-        fxmlLoader.getNamespace().put("webfx", new Adapter(resourceBundle, navigationContext, ((SimpleStringProperty) titleProperty)));
+        fxmlLoader.getNamespace().put("webfx", new Adapter(window, resourceBundle, navigationContext, ((SimpleStringProperty) titleProperty)));
         try {
             final Node loadedNode = (Node) fxmlLoader.load();
             setTopAnchor(loadedNode, 0.0);

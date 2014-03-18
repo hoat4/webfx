@@ -44,6 +44,9 @@ package webfx;
 import com.webfx.NavigationContext;
 import com.webfx.PluginRegistry;
 import com.webfx.WebFXView;
+import com.webfx.WindowContext;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,10 +68,12 @@ public class Adapter {
     public final NavigationContext nav;
     private final StringProperty title;
     public final OS os = new OS();
-    public Adapter(ResourceBundle resourceBundle, NavigationContext navigationContext, StringProperty title) {
+    private final WindowContext window;
+    public Adapter(WindowContext window, ResourceBundle resourceBundle, NavigationContext navigationContext, StringProperty title) {
         this.i18n = resourceBundle;
         this.nav = navigationContext;
        this.title = title;
+        this.window = window;
     }
 
     public <T> T create(String type) {
@@ -99,5 +104,11 @@ public class Adapter {
     public Adapter defer(Runnable runnable) {
         Platform.runLater(runnable);
         return this;
+    }
+    /**
+     * @deprecated will be replaced by a Tab and a Window object
+     */
+    public void impl_openInNewTab(String url) throws MalformedURLException {
+        window.openInNewTab(new URL(url));
     }
 }

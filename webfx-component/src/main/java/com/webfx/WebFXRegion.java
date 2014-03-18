@@ -62,19 +62,21 @@ public final class WebFXRegion extends AnchorPane {
     private final SimpleStringProperty currentTitle = new SimpleStringProperty();
     private Locale locale;
     private final SimpleStringProperty locProp = new SimpleStringProperty("<null URL>");
+    private final WindowContext window;
 
-    public WebFXRegion(NavigationContext n) {
+    public WebFXRegion(NavigationContext n, WindowContext window) {
         navigationContext = n;
+        this.window = window;
     }
 
     public ReadOnlyStringProperty locationProperty() {
         return locProp;
     }
 
-    public WebFXRegion(URL url, boolean hideURL, NavigationContext baseNavContext) {
+  /*  public WebFXRegion(URL url, boolean hideURL, NavigationContext baseNavContext) {
         this(baseNavContext);
         loadUrl(url, hideURL);
-    }
+    }*/
 
     public SimpleStringProperty getCurrentViewTitleProperty() {
         return currentTitle;
@@ -95,6 +97,7 @@ public final class WebFXRegion extends AnchorPane {
 
     public void load() {
         defaultView = new WebFXView(navigationContext);
+        defaultView.window = window;
         defaultView.setURL(url);
         defaultView.setLocale(locale);
         defaultView.load();
