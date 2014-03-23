@@ -39,15 +39,13 @@
  */
 package webfx.app;
 
-import com.webfx.WindowContext;
-import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import java.net.URL;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
+import webfx.WindowContext;
 
 /**
  *

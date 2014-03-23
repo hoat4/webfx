@@ -39,8 +39,6 @@
  */
 package webfx.app;
 
-import com.webfx.WindowContext;
-import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -68,6 +66,7 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
+import webfx.WindowContext;
 
 /**
  *
@@ -78,7 +77,7 @@ public class HTMLTab implements BrowserTab {
     private final WebView browser;
     private final WebEngine webEngine;
     private SimpleObjectProperty<Node> contentProperty;
-    private WindowContext tabManager;
+    private WindowContext window;
     private boolean isLoading;
     private final ObservableBooleanValue hasHistoryBack;
     private final SimpleBooleanProperty hasHistoryForward = new SimpleBooleanProperty();
@@ -95,42 +94,35 @@ public class HTMLTab implements BrowserTab {
             }
         });
         contentProperty = new SimpleObjectProperty<>((Node) browser);
-        webEngine.getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
-            @Override
-            public void changed(ObservableValue<? extends State> ov, State oldv, State newv) {
-                if (newv == State.SUCCEEDED) {
-                    isLoading = false;
-                    app.stop();
-                    Document document = (Document) webEngine.executeScript("document");
-                    NodeList nodeList = document.getElementsByTagName("a");
-                    for (int i = 0; i < nodeList.getLength(); i++) {
-                        EventTarget n = (EventTarget) nodeList.item(i);
-                        n.addEventListener("click", (Event event) -> {
-                            EventTarget eventTarget = event.getTarget();
+        webEngine.getLoadWorker().stateProperty().addListener((ObservableValue<? extends State> ov, State oldv, State newv) -> {
+            if (newv == State.SUCCEEDED) {
+                isLoading = false;
+                app.stop();
+                Document document = (Document) webEngine.executeScript("document");
+                NodeList nodeList = document.getElementsByTagName("a");
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    EventTarget n = (EventTarget) nodeList.item(i);
+                    n.addEventListener("click", (Event event) -> {
+                        EventTarget eventTarget = event.getTarget();
 
-                            if (eventTarget instanceof HTMLAnchorElement == false)
-                                return;
+                        if (eventTarget instanceof HTMLAnchorElement == false)
+                            return;
 
-                            HTMLAnchorElement hrefObj = (HTMLAnchorElement) event.getTarget();
-                            String href = hrefObj.getHref();
-                            if (href.endsWith(".fxml")) {
-                                try {
-                                    System.out.println("OPENING IN NEW TAB" + href);
-                                    getTabManager().openInNewTab(new URL(href));
-                                } catch (MalformedURLException ex) {
-                                    Logger.getLogger(HTMLTab.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                event.preventDefault();
-                            }
-                        }, true);
-                    }
-                } else if (newv == State.FAILED || newv == State.READY || newv == State.CANCELLED) {
-                    isLoading = false;
-                    app.stop();
-                } else {
-                    isLoading = true;
-                    app.tabLoading();
+                        HTMLAnchorElement hrefObj = (HTMLAnchorElement) event.getTarget();
+                        String href = hrefObj.getHref();
+                        if (href.endsWith(".fxml")) {
+                            System.out.println("OPENING IN NEW TAB" + href);
+                            window.blankTab().go(href);
+                            event.preventDefault();
+                        }
+                    }, true);
                 }
+            } else if (newv == State.FAILED || newv == State.READY || newv == State.CANCELLED) {
+                isLoading = false;
+                app.stop();
+            } else {
+                isLoading = true;
+                app.tabLoading();
             }
         });
     }
@@ -161,11 +153,11 @@ public class HTMLTab implements BrowserTab {
 
     @Override
     public void setWindowContext(WindowContext tm) {
-        this.tabManager = tm;
+        this.window = tm;
     }
 
     public WindowContext getTabManager() {
-        return tabManager;
+        return window;
     }
 
     @Override

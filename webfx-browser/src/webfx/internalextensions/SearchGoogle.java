@@ -25,7 +25,7 @@ public class SearchGoogle {
         return LOGO;
     }
     public void search(String text) throws MalformedURLException  {
-        context.impl_openInNewTab("http://www.google.com/search?q="+URLEncoder.encode(text)+"&ie=utf-8&oe=utf-8&aq=t");
+        context.getWindow().blankTab().go("http://www.google.com/search?q="+URLEncoder.encode(text)+"&ie=utf-8&oe=utf-8&aq=t");
     }
             
 }

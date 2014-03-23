@@ -39,8 +39,6 @@
  */
 package webfx.app;
 
-import com.webfx.WindowContext;
-import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import com.webfx.WebFXRegion;
 import java.net.URL;
@@ -51,6 +49,9 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
+import webfx.Adapter;
+import webfx.TabContext;
+import webfx.WindowContext;
 
 /**
  *
@@ -62,13 +63,13 @@ public class FXTab implements BrowserTab {
     private final WebFXRegion webfx;
     private WindowContext tabManager;
 
-    public FXTab(NavigationContext nav, WindowContext window) {
+    public FXTab(TabContext nav, WindowContext window) {
         webfx = new WebFXRegion(nav, window);
         locationProperty.bind(webfx.locationProperty());
         contentProperty.set(webfx);
     }
 
-    FXTab(Locale locale, NavigationContext nav, WindowContext window) {
+    FXTab(Locale locale, TabContext nav, WindowContext window) {
         this(nav, window);
         webfx.setLocale(locale);
     }
@@ -143,6 +144,10 @@ public class FXTab implements BrowserTab {
     @Override
     public void reload() {
         webfx.load();
+    }
+
+    Adapter getAdapter() {
+        return webfx.getAdapter();
     }
 
 }

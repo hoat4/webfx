@@ -29,15 +29,19 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
+import webfx.Adapter;
+import webfx.Extension;
 import webfx.OS;
 
 /**
  *
  * @author attila
  */
-public class NetworkInfo {
+public class NetworkInfo extends Extension {
 
-    private static final OS os = new OS();
+    public NetworkInfo(Adapter context) {
+        super(context);
+    }
     public Gateway defaultGateway;
 
     public NetworkInfo reload() {
@@ -47,7 +51,7 @@ public class NetworkInfo {
             BufferedReader in = new BufferedReader(new InputStreamReader(result.getInputStream()));
             for (String line; (line = in.readLine()) != null;) {
                 if (line.startsWith("0.0.0.0") || line.startsWith("default"))
-                    defaultGateway = parse(line);
+                    defaultGateway = parse(line, context.os);
             }
         } catch (IOException ex) {
             Logger.getLogger(NetworkInfo.class.getName()).log(Level.SEVERE, null, ex);
@@ -55,9 +59,9 @@ public class NetworkInfo {
         }
         return this;
     }
-    private static final Callback<CellDataFeatures<NetworkInterface, String>, ObservableValue<String>> getName = (data)->new SimpleStringProperty(data.getValue().getDisplayName());
-    private static final Callback<CellDataFeatures<NetworkInterface, List<InterfaceAddress>>, ObservableValue<List<InterfaceAddress>>> getAddress = (data)-> new SimpleObjectProperty<>(data.getValue().getInterfaceAddresses());
-    private static final Callback<CellDataFeatures<NetworkInterface, Integer>, ObservableNumberValue> getIndex = (data)->new SimpleIntegerProperty(data.getValue().getIndex());
+    private static final Callback<CellDataFeatures<NetworkInterface, String>, ObservableValue<String>> getName = (data) -> new SimpleStringProperty(data.getValue().getDisplayName());
+    private static final Callback<CellDataFeatures<NetworkInterface, List<InterfaceAddress>>, ObservableValue<List<InterfaceAddress>>> getAddress = (data) -> new SimpleObjectProperty<>(data.getValue().getInterfaceAddresses());
+    private static final Callback<CellDataFeatures<NetworkInterface, Integer>, ObservableNumberValue> getIndex = (data) -> new SimpleIntegerProperty(data.getValue().getIndex());
 
     public void fill(TableView table) throws SocketException {
         TableColumn colName = new TableColumn("Name");
@@ -70,13 +74,12 @@ public class NetworkInfo {
 
         table.getColumns().clear();
         table.getColumns().addAll(colName, colAddress, colIndex);
-        
+
         table.getItems().clear();
         Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
-        while(ifaces.hasMoreElements())
+        while (ifaces.hasMoreElements())
             table.getItems().add(ifaces.nextElement());
     }
-
 
     public static class Gateway {
 
@@ -129,7 +132,7 @@ public class NetworkInfo {
 
     }
 
-    private static Gateway parse(String line) {
+    private static Gateway parse(String line, OS os) {
         String dst = null, gw = null, gm = null, flag = null;
         NetworkInterface iface = null;
         StringTokenizer st = new StringTokenizer(line);

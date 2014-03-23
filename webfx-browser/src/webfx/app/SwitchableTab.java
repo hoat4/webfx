@@ -5,8 +5,6 @@
  */
 package webfx.app;
 
-import com.webfx.WindowContext;
-import com.webfx.NavigationContext;
 import com.webfx.PageContext;
 import com.webfx.WebFXView;
 import java.net.MalformedURLException;
@@ -16,26 +14,29 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
+import javafx.scene.control.ProgressBar;
+import webfx.TabContext;
+import webfx.WindowContext;
 
 /**
  *
  * @author attila
  */
-public class SwitchableTab implements BrowserTab, NavigationContext {
+public class SwitchableTab implements BrowserTab, TabContext {
 
     private BrowserTab tab;
     private final Locale locale;
     private final BrowserFXController app;
     private final SimpleStringProperty titleProp = new SimpleStringProperty("<null>");
 private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
-
+private final SimpleObjectProperty<Node> contentProp = new SimpleObjectProperty<Node>(new ProgressBar());
     public SwitchableTab(BrowserFXController app) {
         this.locale = app.locale;
         this.app = app;
@@ -43,7 +44,7 @@ private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
 
     @Override
     public ObjectProperty<Node> contentProperty() {
-        return tab.contentProperty();
+        return contentProp;
     }
 
     @Override
@@ -106,7 +107,7 @@ private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
     }
 
     @Override
-    public void goTo(String url) {
+    public void go(String url) {
         goTo(url, "Untitled");
     }
 
@@ -117,7 +118,7 @@ private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
 
     @Override
     public void go(URL destination, String originalURL) {
-        goTo(originalURL);
+        go(originalURL);
     }
 
     @Override
@@ -138,11 +139,13 @@ private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
     }
     private final InvalidationListener titleListener = (ignored) -> titleProp.set(tab.titleProperty().get());
     private final InvalidationListener locListener = (ignored) -> locProp.set(tab.locationProperty().get());
+private final InvalidationListener contentListener = (ignored) -> contentProp.set(tab.contentProperty().get());
 
     private void goTo(String url, String title) {
         if (tab != null) {
             tab.titleProperty().removeListener(titleListener);
             tab.locationProperty().removeListener(locListener);
+            tab.contentProperty().removeListener(contentListener);
         }
         URL destination = null;
         BrowserTab impl;
@@ -170,10 +173,31 @@ private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
         }
         titleProp.set(tab.titleProperty().get());
        locProp.set(tab.locationProperty().get());
+       contentProp.set(tab.contentProperty().get());
         System.out.println("Set locProp to "+locProp.get());
+        
         tab.titleProperty().addListener(titleListener);
         tab.locationProperty().addListener(locListener);
+        tab.contentProperty().addListener(contentListener);
+        
         tab.go(destination, url);
     }
 
+    @Override
+    public void close() {
+            app.closeTab(this);
+    }
+
+    @Override
+    public String currentURL() {
+        return locProp.get();
+    }
+
+    @Override
+    public WindowContext window() {
+        return app;
+    }
+public FXTab asFX() {
+    return (FXTab)tab;
+}
 }
