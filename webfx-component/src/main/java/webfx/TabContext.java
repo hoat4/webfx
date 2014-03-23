@@ -37,16 +37,54 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.webfx;
-
-import java.net.URL;
+package webfx;
 
 /**
  *
- * @author bruno
+ * @author Bruno Borges <bruno.borges at oracle.com>
+ * @author hoat4 <attila at hontvari.net>
  */
-public interface WindowContext {
-    
-    public void openInNewTab(URL url);
-    
+public interface TabContext {
+
+    /**
+     * Goes forward in the tab history.
+     */
+    void forward();
+
+    /**
+     * Goes back in the tab history.
+     */
+    void back();
+
+    /**
+     * Reloads the current page.
+     */
+    void reload();
+
+    /**
+     * Goes to specified URL.
+     *
+     * @param url the destination location
+     */
+    void go(String url);
+
+    /**
+     * Closes the tab.
+     */
+    void close();
+
+    /**
+     * Returns this tab's current URL. This method can also return
+     * chrome://newtab, if this tab's location is it.
+     *
+     * @return the current location of this tab
+     */
+    String currentURL();
+
+    /**
+     * The window where is this tab.
+     *
+     * @return this tab's container window
+     */
+    WindowContext window();
 }

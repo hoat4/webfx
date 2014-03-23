@@ -39,6 +39,8 @@
  */
 package com.webfx;
 
+import webfx.TabContext;
+import webfx.WindowContext;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -76,7 +78,7 @@ import webfx.Adapter;
  * @author Bruno Borges <bruno.borges at oracle.com>
  */
 public class WebFXView extends AnchorPane {
-
+    Adapter adapter;
     private static final Logger LOGGER = Logger.getLogger(WebFXView.class.getName());
     private FXMLLoader fxmlLoader;
     private Locale locale;
@@ -84,7 +86,7 @@ public class WebFXView extends AnchorPane {
     private PageContext pageContext;
     private ResourceBundle resourceBundle;
     private final SimpleObjectProperty<URL> urlProperty = new SimpleObjectProperty<>();
-    private NavigationContext navigationContext;
+    private TabContext navigationContext;
     private final ReadOnlyStringProperty titleProperty = new SimpleStringProperty();
     public WindowContext window;
     public WebFXView() {
@@ -99,14 +101,14 @@ public class WebFXView extends AnchorPane {
         load();
     }
 
-    WebFXView(NavigationContext navigationContext) {
+    WebFXView(TabContext navigationContext) {
         this();
         this.navigationContext = navigationContext;
+        adapter = new Adapter(resourceBundle, navigationContext);
     }
 
-    WebFXView(URL url, NavigationContext navContext) {
-        this();
-        this.navigationContext = navContext;
+    WebFXView(URL url, TabContext navContext) {
+        this(navContext);
         this.urlProperty.set(url);
         load();
     }
@@ -141,7 +143,7 @@ public class WebFXView extends AnchorPane {
 
         fxmlLoader = new FXMLLoader(pageContext.getLocation(), resourceBundle);
         fxmlLoader.setClassLoader(new URLClassLoader(((URLClassLoader) getClass().getClassLoader()).getURLs()));
-        fxmlLoader.getNamespace().put("webfx", new Adapter(window, resourceBundle, navigationContext, ((SimpleStringProperty) titleProperty)));
+        fxmlLoader.getNamespace().put("webfx", adapter = new Adapter(resourceBundle, navigationContext));
         try {
             final Node loadedNode = (Node) fxmlLoader.load();
             setTopAnchor(loadedNode, 0.0);

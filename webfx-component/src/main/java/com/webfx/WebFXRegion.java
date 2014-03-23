@@ -39,6 +39,8 @@
  */
 package com.webfx;
 
+import webfx.TabContext;
+import webfx.WindowContext;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
@@ -49,6 +51,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.AnchorPane;
+import webfx.Adapter;
 
 /**
  *
@@ -58,13 +61,13 @@ public final class WebFXRegion extends AnchorPane {
 
     private URL url;
     private WebFXView defaultView;
-    private final NavigationContext navigationContext;
+    private final TabContext navigationContext;
     private final SimpleStringProperty currentTitle = new SimpleStringProperty();
     private Locale locale;
     private final SimpleStringProperty locProp = new SimpleStringProperty("<null URL>");
     private final WindowContext window;
 
-    public WebFXRegion(NavigationContext n, WindowContext window) {
+    public WebFXRegion(TabContext n, WindowContext window) {
         navigationContext = n;
         this.window = window;
     }
@@ -115,7 +118,7 @@ public final class WebFXRegion extends AnchorPane {
         });
     }
 
-    public NavigationContext getNavigationContext() {
+    public TabContext getNavigationContext() {
         return navigationContext;
     }
 
@@ -126,5 +129,10 @@ public final class WebFXRegion extends AnchorPane {
     public PageContext getPageContext() {
         return defaultView.getPageContext();
     }
+public Adapter getAdapter() {
+    if(defaultView.adapter==null)
+        System.err.println("Warning: null adapter for WebFXRegion "+this);
+    return defaultView.adapter;
+}
 
 }

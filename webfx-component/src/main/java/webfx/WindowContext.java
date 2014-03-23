@@ -37,20 +37,34 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.webfx;
+package webfx;
 
+import java.net.URL;
 
 /**
  *
- * @author Bruno Borges <bruno.borges at oracle.com>
+ * @author hoat4
  */
-public interface NavigationContext {
-    public void forward();
-
-    public void back();
-
-    public void goTo(String url);
-    
-    public void reload();
-
+public interface WindowContext {
+    /**
+     * Opens a new tab and retuns it. 
+     * @return a newly opened tab
+     */
+    TabContext openTab();
+    /**
+     * Returns the currently active tab where the focus is in this window.
+     * @return the current tab
+     */
+    TabContext currentTab();
+    /**
+     * Returns a tab which doesn't disturbs the user if it went to an other URL, for example 
+     * a tab with chrome://newtab URL. 
+     * @return 
+     */
+    default TabContext blankTab() {
+        TabContext result = currentTab();
+        if(result.currentURL().equals("chrome://newtab"))
+            return result;
+        return openTab();
+    }
 }

@@ -39,69 +39,19 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package webfx;
 
-import com.webfx.PluginRegistry;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.function.Function;
-import javafx.application.Platform;
-import javafx.beans.property.StringProperty;
+package webfx;
 
 /**
  *
  * @author attila
  */
-public class Adapter {
-
-    public final ResourceBundle i18n;
-    /**
-     * Information of the operating system. 
-     */
-    public final OS os = new OS();
-    /**
-     * Reference to the {@link TabContext} object. 
-     */
-    public final TabContext tab;
-
-    public Adapter(ResourceBundle resourceBundle, TabContext tab) {
-        this.i18n = resourceBundle;
-        this.tab = tab;
+public abstract class Extension {
+protected Adapter context;
+    protected Extension() {
+    }
+    protected Extension(Adapter context) {
+        this.context = context;
     }
 
-    /**
-     * Creates a new extension object.
-     *
-     * @param <T> the type of the result
-     * @param type name of the extension
-     * @return the extension object
-     * @throws ExtensionNotFoundException if the extension not found
-     */
-    public <T> T create(String type) throws ExtensionNotFoundException {
-        Function<Adapter, T> factory = (Function<Adapter, T>) PluginRegistry.EXTENSIONS.get(type);
-        if (factory == null)
-            throw new ExtensionNotFoundException("Extension " + type + " not found");
-        else
-            return factory.apply(this);
-    }
-
-    /**
-     * Defers the specified {@link Runnable} task to the next 'pulse'.
-     *
-     * @param runnable the task which to be deferred
-     * @return this {@link Adapter} object
-     */
-    public Adapter defer(Runnable runnable) {
-        Platform.runLater(runnable);
-        return this;
-    }
-    /**
-     * Returns the window that contains this tab.
-     * 
-     * @return tab's window
-     */
-    public WindowContext getWindow() {
-        return tab.window();
-    }
 }

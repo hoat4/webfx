@@ -45,7 +45,7 @@ package webfx;
  *
  * @author attila
  */
-public class PluginNotFoundException extends RuntimeException {
+public class ExtensionNotFoundException extends RuntimeException {
 
     /**
      * Constructs an instance of <code>PluginNotFoundException</code> with the
@@ -53,7 +53,7 @@ public class PluginNotFoundException extends RuntimeException {
      *
      * @param msg the detail message.
      */
-    public PluginNotFoundException(String msg) {
+    public ExtensionNotFoundException(String msg) {
         super(msg);
     }
 }
