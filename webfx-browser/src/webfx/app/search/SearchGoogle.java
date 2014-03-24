@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 
-package webfx.internalextensions;
+package webfx.app.search;
 
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import javafx.scene.image.Image;
-import webfx.Adapter;
+import webfx.api.page.Adapter;
 
 /**
  *

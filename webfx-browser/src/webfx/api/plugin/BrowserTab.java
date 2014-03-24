@@ -37,21 +37,20 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx.app;
+package webfx.api.plugin;
 
-import com.webfx.PageContext;
 import java.net.URL;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
-import webfx.WindowContext;
+import webfx.api.page.WindowContext;
 
 /**
  *
  * @author bruno
  */
-interface BrowserTab {
+public interface BrowserTab {
 
     ObjectProperty<Node> contentProperty();
 

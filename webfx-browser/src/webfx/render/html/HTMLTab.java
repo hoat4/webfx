@@ -37,15 +37,10 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx.app;
+package webfx.render.html;
 
-import com.webfx.PageContext;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
@@ -53,7 +48,6 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -63,10 +57,12 @@ import javafx.scene.web.WebView;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
-import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
-import webfx.WindowContext;
+import webfx.api.page.WindowContext;
+import webfx.api.plugin.BrowserTab;
+import webfx.app.BrowserFXController;
+import webfx.api.plugin.PageContext;
 
 /**
  *

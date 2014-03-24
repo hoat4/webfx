@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx.app;
+package webfx.internal;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -107,6 +107,8 @@ public class URLVerifier {
     }
 
     /**
+     * Returns the string after the last slash (/) in the path, or "index" if a slash is the last character. 
+     * 
      * @return the pageName
      */
     public String getPageName() {

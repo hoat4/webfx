@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package webfx.internalextensions;
+package webfx.app.ui;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -26,12 +25,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
-import webfx.Adapter;
-import webfx.Extension;
-import webfx.OS;
+import webfx.api.page.Adapter;
+import webfx.api.page.Extension;
+import webfx.api.page.OS;
 
 /**
  *

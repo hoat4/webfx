@@ -5,8 +5,10 @@
  */
 package webfx.app;
 
-import com.webfx.PageContext;
-import com.webfx.WebFXView;
+import webfx.internal.URLVerifier;
+import webfx.render.fxml.FXTab;
+import webfx.render.html.HTMLTab;
+import webfx.render.fxml.WebFXView;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
@@ -22,8 +24,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
 import javafx.scene.control.ProgressBar;
-import webfx.TabContext;
-import webfx.WindowContext;
+import webfx.api.page.TabContext;
+import webfx.api.page.WindowContext;
+import webfx.api.plugin.BrowserTab;
+import webfx.api.plugin.PageContext;
 
 /**
  *
@@ -35,8 +39,9 @@ public class SwitchableTab implements BrowserTab, TabContext {
     private final Locale locale;
     private final BrowserFXController app;
     private final SimpleStringProperty titleProp = new SimpleStringProperty("<null>");
-private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
-private final SimpleObjectProperty<Node> contentProp = new SimpleObjectProperty<Node>(new ProgressBar());
+    private final SimpleStringProperty locProp = new SimpleStringProperty("<null>");
+    private final SimpleObjectProperty<Node> contentProp = new SimpleObjectProperty<Node>(new ProgressBar());
+
     public SwitchableTab(BrowserFXController app) {
         this.locale = app.locale;
         this.app = app;
@@ -139,7 +144,7 @@ private final SimpleObjectProperty<Node> contentProp = new SimpleObjectProperty<
     }
     private final InvalidationListener titleListener = (ignored) -> titleProp.set(tab.titleProperty().get());
     private final InvalidationListener locListener = (ignored) -> locProp.set(tab.locationProperty().get());
-private final InvalidationListener contentListener = (ignored) -> contentProp.set(tab.contentProperty().get());
+    private final InvalidationListener contentListener = (ignored) -> contentProp.set(tab.contentProperty().get());
 
     private void goTo(String url, String title) {
         if (tab != null) {
@@ -155,14 +160,12 @@ private final InvalidationListener contentListener = (ignored) -> contentProp.se
             impl = new HTMLTab(app);
         tab = impl;
         impl.setWindowContext(app);
-        if (url.startsWith("file:/") || url.startsWith("jar:/") || url.startsWith("wfx:/") || url.startsWith("http:/") || url.startsWith("https:/"))
+        if (url.startsWith("file:/") || url.startsWith("jar:/") || url.startsWith("wfx:/") || url.startsWith("http:/") || url.startsWith("https:/")||url.startsWith("chrome://"))
             try {
                 destination = new URL(url);
             } catch (MalformedURLException ex) {
                 Logger.getLogger(WebFXView.class.getName()).log(Level.SEVERE, null, ex);
             }
-        else if (url.startsWith("chrome://"))
-            destination = getClass().getResource("/chrome_uris/" + url.substring("chrome://".length()) + ".fxml");
         else {
             URL basePath = tab.getPageContext().getBasePath();
             try {
@@ -172,20 +175,20 @@ private final InvalidationListener contentListener = (ignored) -> contentProp.se
             }
         }
         titleProp.set(tab.titleProperty().get());
-       locProp.set(tab.locationProperty().get());
-       contentProp.set(tab.contentProperty().get());
-        System.out.println("Set locProp to "+locProp.get());
-        
+        locProp.set(tab.locationProperty().get());
+        contentProp.set(tab.contentProperty().get());
+        System.out.println("Set locProp to " + locProp.get());
+
         tab.titleProperty().addListener(titleListener);
         tab.locationProperty().addListener(locListener);
         tab.contentProperty().addListener(contentListener);
-        
+
         tab.go(destination, url);
     }
 
     @Override
     public void close() {
-            app.closeTab(this);
+        app.closeTab(this);
     }
 
     @Override
@@ -197,7 +200,8 @@ private final InvalidationListener contentListener = (ignored) -> contentProp.se
     public WindowContext window() {
         return app;
     }
-public FXTab asFX() {
-    return (FXTab)tab;
-}
+
+    public FXTab asFX() {
+        return (FXTab) tab;
+    }
 }

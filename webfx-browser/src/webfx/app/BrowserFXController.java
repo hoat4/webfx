@@ -39,6 +39,8 @@
  */
 package webfx.app;
 
+import webfx.render.fxml.FXTab;
+import webfx.api.plugin.BrowserTab;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -69,9 +71,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.PopupWindow;
-import webfx.Adapter;
-import webfx.TabContext;
-import webfx.WindowContext;
+import webfx.api.page.Adapter;
+import webfx.api.page.TabContext;
+import webfx.api.page.WindowContext;
 
 /**
  *

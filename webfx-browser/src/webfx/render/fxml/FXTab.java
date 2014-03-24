@@ -37,10 +37,11 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package webfx.app;
+package webfx.render.fxml;
 
-import com.webfx.PageContext;
-import com.webfx.WebFXRegion;
+import webfx.api.plugin.PageContext;
+import webfx.api.plugin.BrowserTab;
+import webfx.render.fxml.WebFXRegion;
 import java.net.URL;
 import java.util.Locale;
 import javafx.beans.property.ObjectProperty;
@@ -49,9 +50,9 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
-import webfx.Adapter;
-import webfx.TabContext;
-import webfx.WindowContext;
+import webfx.api.page.Adapter;
+import webfx.api.page.TabContext;
+import webfx.api.page.WindowContext;
 
 /**
  *
@@ -69,7 +70,7 @@ public class FXTab implements BrowserTab {
         contentProperty.set(webfx);
     }
 
-    FXTab(Locale locale, TabContext nav, WindowContext window) {
+    public FXTab(Locale locale, TabContext nav, WindowContext window) {
         this(nav, window);
         webfx.setLocale(locale);
     }
@@ -146,7 +147,7 @@ public class FXTab implements BrowserTab {
         webfx.load();
     }
 
-    Adapter getAdapter() {
+    public Adapter getAdapter() {
         return webfx.getAdapter();
     }
 

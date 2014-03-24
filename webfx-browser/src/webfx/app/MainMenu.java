@@ -7,6 +7,8 @@ package webfx.app;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +30,7 @@ import javafx.stage.PopupWindow;
  * @author attila
  */
 public class MainMenu {
-
+    public static final List<MenuItem> list = new ArrayList<>();
     private final BrowserFXController app;
     private final ContextMenu menu = new ContextMenu();
 
@@ -38,9 +40,7 @@ public class MainMenu {
     }
 
     private void init() {
-        MenuItem item = new MenuItem("Downloads");
-        item.setOnAction((evt) -> app.blankTab().go("chrome://downloads"));
-        menu.getItems().add(item);
+        menu.getItems().addAll(list);
     }
 
     public void open(Button menuButton) {
@@ -49,4 +49,6 @@ public class MainMenu {
         else
             menu.show(menuButton, Side.BOTTOM, 0, 0);
     }
+
+    
 }

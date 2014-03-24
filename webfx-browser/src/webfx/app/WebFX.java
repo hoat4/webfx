@@ -39,7 +39,7 @@
  */
 package webfx.app;
 
-import com.webfx.PluginRegistry;
+import webfx.api.plugin.PluginRegistry;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -50,20 +50,23 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import webfx.internalextensions.AnalogClock;
-import webfx.internalextensions.NetworkInfo;
-import webfx.internalextensions.SearchGoogle;
-
+import webfx.api.extension.ExtensionRegistry;
+import webfx.app.ui.AnalogClock;
+import webfx.app.ui.NetworkInfo;
+import webfx.app.search.SearchGoogle;
+import webfx.internal.ExtendedURLConnFactory;
 /**
- *
+ * 
  * @author bruno
+ * @author hoat4
  */
 public class WebFX extends Application {
     private static final Logger LOGGER = Logger.getLogger(WebFX.class.getName());
     static {
-        PluginRegistry.putExtension("clock.analog", AnalogClock::new);
-        PluginRegistry.putExtension("network.info", NetworkInfo::new);
-        PluginRegistry.putExtension("search.google", SearchGoogle::new);
+        ExtendedURLConnFactory.init();
+        ExtensionRegistry.putExtension("clock.analog", AnalogClock::new);
+        ExtensionRegistry.putExtension("network.info", NetworkInfo::new);
+        ExtensionRegistry.putExtension("search.google", SearchGoogle::new);
     }
     @Override
     public void start(Stage stage) throws Exception {
