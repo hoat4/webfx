@@ -41,9 +41,11 @@ package webfx.api.plugin;
 
 import java.net.URL;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
+import webfx.api.SecurityHolder;
 import webfx.api.page.WindowContext;
 
 /**
@@ -56,7 +58,7 @@ public interface BrowserTab {
 
     ReadOnlyStringProperty titleProperty();
 
-    ReadOnlyStringProperty locationProperty();
+    ReadOnlyObjectProperty<URL> locationProperty();
 
     void stop();
 
@@ -79,5 +81,7 @@ public interface BrowserTab {
     void reload();
 
     PageContext getPageContext();
+
+    SecurityHolder security();
 
 }

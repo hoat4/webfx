@@ -47,12 +47,15 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.AnchorPane;
 import webfx.api.page.Adapter;
+import webfx.internal.ProtocolChrome;
 
 /**
  *
@@ -61,11 +64,11 @@ import webfx.api.page.Adapter;
 public final class WebFXRegion extends AnchorPane {
 
     private URL url;
-    private WebFXView defaultView;
+    WebFXView defaultView;
     private final TabContext navigationContext;
     private final SimpleStringProperty currentTitle = new SimpleStringProperty();
     private Locale locale;
-    private final SimpleStringProperty locProp = new SimpleStringProperty("<null URL>");
+    private final SimpleObjectProperty<URL> locProp = new SimpleObjectProperty<>();
     private final WindowContext window;
 
     public WebFXRegion(TabContext n, WindowContext window) {
@@ -73,27 +76,23 @@ public final class WebFXRegion extends AnchorPane {
         this.window = window;
     }
 
-    public ReadOnlyStringProperty locationProperty() {
+    public ReadOnlyObjectProperty<URL> locationProperty() {
         return locProp;
     }
 
-  /*  public WebFXRegion(URL url, boolean hideURL, NavigationContext baseNavContext) {
-        this(baseNavContext);
-        loadUrl(url, hideURL);
-    }*/
-
+    /*  public WebFXRegion(URL url, boolean hideURL, NavigationContext baseNavContext) {
+     this(baseNavContext);
+     loadUrl(url, hideURL);
+     }*/
     public SimpleStringProperty getCurrentViewTitleProperty() {
         return currentTitle;
     }
 
     public final void setUrl(URL url, boolean hideURL) {
-        if(url == null)
+        if (url == null)
             throw new NullPointerException("url");
         this.url = url;
-        if (hideURL)
-            locProp.set("");
-        else
-            locProp.set(url.toExternalForm());
+            locProp.set(url);
     }
 
     public void loadUrl(URL url, boolean hideURL) {
@@ -132,10 +131,11 @@ public final class WebFXRegion extends AnchorPane {
     public PageContext getPageContext() {
         return defaultView.getPageContext();
     }
-public Adapter getAdapter() {
-    if(defaultView.adapter==null)
-        System.err.println("Warning: null adapter for WebFXRegion "+this);
-    return defaultView.adapter;
-}
+
+    public Adapter getAdapter() {
+        if (defaultView.adapter == null)
+            System.err.println("Warning: null adapter for WebFXRegion " + this);
+        return defaultView.adapter;
+    }
 
 }

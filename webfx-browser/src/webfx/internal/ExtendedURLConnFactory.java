@@ -22,13 +22,13 @@ import org.w3c.dom.html.HTMLMapElement;
 public class ExtendedURLConnFactory implements URLStreamHandlerFactory{
     private static Map<String, URLStreamHandler> map = new HashMap<>();
     public static void init() {
-        map.put("http", new ProtocolDefault(new sun.net.www.protocol.http.Handler()));
+        /*map.put("http", new ProtocolDefault(new sun.net.www.protocol.http.Handler()));
         map.put("https", new ProtocolDefault(new sun.net.www.protocol.https.Handler()));
         map.put("file", new ProtocolDefault(new sun.net.www.protocol.file.Handler()));
         map.put("netdoc", new ProtocolDefault(new sun.net.www.protocol.netdoc.Handler()));
         map.put("jar", new ProtocolDefault(new sun.net.www.protocol.jar.Handler()));
         map.put("mailto", new ProtocolDefault(new sun.net.www.protocol.mailto.Handler()));
-        map.put("ftp", new ProtocolDefault(new sun.net.www.protocol.ftp.Handler()));
+        map.put("ftp", new ProtocolDefault(new sun.net.www.protocol.ftp.Handler()));*/
         map.put("wfx", new ProtocolWFX("wfx"));
         map.put("chrome", new ProtocolChrome("chrome"));
         map.put("about", new ProtocolChrome("about"));

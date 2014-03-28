@@ -28,7 +28,7 @@ public interface WindowContext {
      */
     default TabContext blankTab() {
         TabContext result = currentTab();
-        if(result.currentURL().equals("chrome://newtab"))
+        if(result.getRealURL().toExternalForm().equals("chrome://newtab"))
             return result;
         return openTab();
     }

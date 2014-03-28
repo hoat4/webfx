@@ -39,17 +39,16 @@
  */
 package webfx.render.fxml;
 
-import webfx.api.plugin.PageContext;
-import webfx.api.page.TabContext;
-import webfx.api.page.WindowContext;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -68,7 +67,11 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
+import webfx.api.SecurityHolder;
 import webfx.api.page.Adapter;
+import webfx.api.page.TabContext;
+import webfx.api.page.WindowContext;
+import webfx.api.plugin.PageContext;
 
 /**
  * {@literal WebFXView} is a {@link javafx.scene.Node} that manages an
@@ -90,6 +93,8 @@ public class WebFXView extends AnchorPane {
     private TabContext navigationContext;
     private final ReadOnlyStringProperty titleProperty = new SimpleStringProperty();
     public WindowContext window;
+    public Properties parameters = new Properties();
+    SecurityHolder secholder;
     public WebFXView() {
         setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         getStyleClass().add("webfx-view");
@@ -105,7 +110,7 @@ public class WebFXView extends AnchorPane {
     WebFXView(TabContext navigationContext) {
         this();
         this.navigationContext = navigationContext;
-        adapter = new Adapter(resourceBundle, navigationContext);
+        adapter = new Adapter(resourceBundle, navigationContext, secholder = new SecurityHolder());
     }
 
     WebFXView(URL url, TabContext navContext) {
@@ -138,13 +143,14 @@ public class WebFXView extends AnchorPane {
     }
 
     private void internalLoad() {
+        secholder = new SecurityHolder();
         pageContext = new PageContext(urlProperty.get());
 
         initLocalization();
 
         fxmlLoader = new FXMLLoader(pageContext.getLocation(), resourceBundle);
         fxmlLoader.setClassLoader(new URLClassLoader(((URLClassLoader) getClass().getClassLoader()).getURLs()));
-        fxmlLoader.getNamespace().put("webfx", adapter = new Adapter(resourceBundle, navigationContext));
+        fxmlLoader.getNamespace().put("webfx", adapter = new Adapter(resourceBundle, navigationContext, secholder));
         try {
             final Node loadedNode = (Node) fxmlLoader.load();
             setTopAnchor(loadedNode, 0.0);

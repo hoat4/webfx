@@ -39,6 +39,8 @@
  */
 package webfx.api.page;
 
+import java.net.URL;
+
 /**
  *
  * @author Bruno Borges <bruno.borges at oracle.com>
@@ -74,17 +76,18 @@ public interface TabContext {
     void close();
 
     /**
-     * Returns this tab's current URL. This method can also return
-     * chrome://newtab, if this tab's location is it.
+     * Gets this tab's current URL. 
      *
      * @return the current location of this tab
      */
-    String currentURL();
+    URL getUserURL();
 
     /**
      * The window where is this tab.
      *
      * @return this tab's container window
      */
-    WindowContext window();
+    WindowContext getWindow();
+    URL getRealURL();
+    void showError(String code, String details);
 }

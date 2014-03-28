@@ -43,12 +43,17 @@ package webfx.api.page;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
+import webfx.api.ObjectWrapper;
+import webfx.api.SecurityHolder;
 import webfx.api.extension.ExtensionRegistry;
 import webfx.api.plugin.PluginRegistry;
+import webfx.app.SharedSecrets;
+import webfx.internal.URLVerifier;
 
 /**
  *
@@ -58,17 +63,19 @@ public class Adapter {
 
     public final ResourceBundle i18n;
     /**
-     * Information of the operating system. 
+     * Information of the operating system.
      */
     public final OS os = new OS();
     /**
-     * Reference to the {@link TabContext} object. 
+     * Reference to the {@link TabContext} object.
      */
     public final TabContext tab;
+    private final SecurityHolder securityHolder;
 
-    public Adapter(ResourceBundle resourceBundle, TabContext tab) {
+    public Adapter(ResourceBundle resourceBundle, TabContext tab, SecurityHolder securityHolder) {
         this.i18n = resourceBundle;
         this.tab = tab;
+        this.securityHolder = securityHolder;
     }
 
     /**
@@ -97,12 +104,35 @@ public class Adapter {
         Platform.runLater(runnable);
         return this;
     }
+
     /**
      * Returns the window that contains this tab.
-     * 
+     *
      * @return tab's window
      */
     public WindowContext getWindow() {
-        return tab.window();
+        return tab.getWindow();
     }
+
+    public <T> T query(String name) {
+        switch (name.charAt(0)) {
+            case '$':
+                ObjectWrapper ow = SharedSecrets.ow.get(getQueryParam(name.substring(1)));
+                if(ow == null)
+                    return null;
+                ow.checkRead(securityHolder);
+                return (T) ow.get();
+            default:
+                throw new IllegalArgumentException("Unknown query type: '" + name.charAt(0) + "'");
+        }
+    }
+
+    private String getQueryParam(String name) {
+        return URLVerifier.getQueryParameter(tab.getRealURL().toExternalForm(), name);
+    }
+
+    public SecurityHolder getSecurityHolder() {
+        return securityHolder;
+    }
+    
 }

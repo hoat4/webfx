@@ -41,10 +41,14 @@ package webfx.render.html;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -59,6 +63,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
+import webfx.api.SecurityHolder;
 import webfx.api.page.WindowContext;
 import webfx.api.plugin.BrowserTab;
 import webfx.app.BrowserFXController;
@@ -67,9 +72,11 @@ import webfx.api.plugin.PageContext;
 /**
  *
  * @author bruno
+ * @author hoat4
  */
 public class HTMLTab implements BrowserTab {
 
+    private SimpleObjectProperty<URL> locUrlProp = new SimpleObjectProperty<>();
     private final WebView browser;
     private final WebEngine webEngine;
     private SimpleObjectProperty<Node> contentProperty;
@@ -77,20 +84,28 @@ public class HTMLTab implements BrowserTab {
     private boolean isLoading;
     private final ObservableBooleanValue hasHistoryBack;
     private final SimpleBooleanProperty hasHistoryForward = new SimpleBooleanProperty();
+    private SecurityHolder secholder;
 
     public HTMLTab(BrowserFXController app) {
+        secholder = new SecurityHolder();
         browser = new WebView();
         webEngine = browser.getEngine();
-        this.hasHistoryBack = webEngine.getHistory().currentIndexProperty().greaterThan(0);
-        webEngine.getHistory().currentIndexProperty().addListener(new InvalidationListener() {
-
-            @Override
-            public void invalidated(Observable observable) {
-                hasHistoryForward.set(webEngine.getHistory().getCurrentIndex() < webEngine.getHistory().getEntries().size() - 1);
+        webEngine.locationProperty().addListener((ie) -> {
+            try {
+                locUrlProp.set(new URL(webEngine.getLocation()));
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
             }
+        });
+        this.hasHistoryBack = webEngine.getHistory().currentIndexProperty().greaterThan(0);
+
+        webEngine.getHistory().currentIndexProperty().addListener((Observable observable) -> {
+            hasHistoryForward.set(webEngine.getHistory().getCurrentIndex() < webEngine.getHistory().getEntries().size() - 1);
         });
         contentProperty = new SimpleObjectProperty<>((Node) browser);
         webEngine.getLoadWorker().stateProperty().addListener((ObservableValue<? extends State> ov, State oldv, State newv) -> {
+            if (newv == State.RUNNING)
+                secholder = new SecurityHolder();
             if (newv == State.SUCCEEDED) {
                 isLoading = false;
                 app.stop();
@@ -129,8 +144,8 @@ public class HTMLTab implements BrowserTab {
     }
 
     @Override
-    public ReadOnlyStringProperty locationProperty() {
-        return webEngine.locationProperty();
+    public ReadOnlyObjectProperty<URL> locationProperty() {
+        return locUrlProp;
     }
 
     public ReadOnlyBooleanProperty loadingProperty() {
@@ -207,4 +222,10 @@ public class HTMLTab implements BrowserTab {
     public void reload() {
         webEngine.reload();
     }
+
+    @Override
+    public SecurityHolder security() {
+        return secholder;
+    }
+
 }

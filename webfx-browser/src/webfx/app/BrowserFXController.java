@@ -74,6 +74,7 @@ import javafx.stage.PopupWindow;
 import webfx.api.page.Adapter;
 import webfx.api.page.TabContext;
 import webfx.api.page.WindowContext;
+import webfx.internal.BindingUtils;
 
 /**
  *
@@ -176,18 +177,17 @@ public class BrowserFXController implements WindowContext {
             selectionTab.getSelectedItem().contentProperty().bind(tab.contentProperty());
             browserMap.put(selectionTab.getSelectedIndex(), tab);
             System.err.println("Put new tab @ " + selectionTab.getSelectedIndex());
-            urlField.textProperty().bind(tab.locationProperty());
+            urlField.textProperty().bind(BindingUtils.convert(tab.locationProperty()));
             stopButton.disableProperty().set(!tab.isStoppable());
             selectionTab.getSelectedItem().textProperty().bind(tab.titleProperty());
             LOGGER.log(Level.INFO, "Title used for new tab: {0}", tab.titleProperty().get());
-
         };
         if (Platform.isFxApplicationThread())
             task.run();
         else
             Platform.runLater(task);
     }
-
+    
     public void initialize() {
         menu = new MainMenu(this);
         reloadButton.disableProperty().bind(stopButton.disabledProperty().not());
@@ -195,7 +195,7 @@ public class BrowserFXController implements WindowContext {
             if (newValue.booleanValue())
                 urlField.textProperty().unbind();
             else if (selectedBrowserTab() != null)
-                urlField.textProperty().bind(selectedBrowserTab().locationProperty());
+                urlField.textProperty().bind(BindingUtils.convert(selectedBrowserTab().locationProperty()));
         });
 
         tabPane.getTabs().addListener((ListChangeListener.Change<? extends Tab> change) -> {
@@ -224,7 +224,7 @@ public class BrowserFXController implements WindowContext {
                 urlField.setText("");
             } else {
                 LOGGER.info("There's a tab selected");
-                urlField.textProperty().bind(selectedBrowserTab.locationProperty());
+                urlField.textProperty().bind(BindingUtils.convert(selectedBrowserTab.locationProperty()));
                 stopButton.setDisable(!selectedBrowserTab.isLoading());
             }
         });

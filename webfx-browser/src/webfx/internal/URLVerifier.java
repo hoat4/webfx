@@ -39,10 +39,10 @@
  */
 package webfx.internal;
 
-import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URLDecoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +51,23 @@ import java.util.logging.Logger;
  * @author bruno
  */
 public class URLVerifier {
+
+    public static String getQueryParameter(String query, String name) {
+        System.out.println("gqp "+query);
+        query = query.substring(query.lastIndexOf("?"));
+        String[] pairs = query.split("&");
+        for (String pair : pairs) {
+            try {
+                int idx = pair.indexOf("=");
+                String n = URLDecoder.decode(pair.substring(0, idx), "UTF-8");
+                if (n.equals(name))
+                    return URLDecoder.decode(pair.substring(idx + 1), "UTF-8");
+            } catch (UnsupportedEncodingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }System.out.println("qpnf: "+name+" in "+query);
+        return null;
+    }
 
     private URI location;
     private URI basePath;
@@ -107,8 +124,9 @@ public class URLVerifier {
     }
 
     /**
-     * Returns the string after the last slash (/) in the path, or "index" if a slash is the last character. 
-     * 
+     * Returns the string after the last slash (/) in the path, or "index" if a
+     * slash is the last character.
+     *
      * @return the pageName
      */
     public String getPageName() {

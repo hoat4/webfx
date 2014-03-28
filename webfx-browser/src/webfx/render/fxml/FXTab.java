@@ -44,12 +44,16 @@ import webfx.api.plugin.BrowserTab;
 import webfx.render.fxml.WebFXRegion;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Properties;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
+import webfx.api.SecurityHolder;
 import webfx.api.page.Adapter;
 import webfx.api.page.TabContext;
 import webfx.api.page.WindowContext;
@@ -59,7 +63,7 @@ import webfx.api.page.WindowContext;
  * @author Bruno Borges <bruno.borges at oracle.com>
  */
 public class FXTab implements BrowserTab {
-    private final ReadOnlyStringWrapper locationProperty = new ReadOnlyStringWrapper();
+    private final ReadOnlyObjectWrapper<URL> locationProperty = new ReadOnlyObjectWrapper<>();
     private final SimpleObjectProperty<Node> contentProperty = new SimpleObjectProperty<>();
     private final WebFXRegion webfx;
     private WindowContext tabManager;
@@ -89,7 +93,7 @@ public class FXTab implements BrowserTab {
         return this;
     }
     @Override
-    public ReadOnlyStringProperty locationProperty() {
+    public ReadOnlyObjectProperty<URL> locationProperty() {
         return locationProperty;
     }
 
@@ -151,4 +155,9 @@ public class FXTab implements BrowserTab {
         return webfx.getAdapter();
     }
 
+    @Override
+    public SecurityHolder security() {
+        return webfx.defaultView.secholder;
+    }
+ 
 }
