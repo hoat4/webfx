@@ -42,7 +42,10 @@ package webfx.internal;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,19 +56,23 @@ import java.util.logging.Logger;
 public class URLVerifier {
 
     public static String getQueryParameter(String query, String name) {
-        System.out.println("gqp "+query);
-        query = query.substring(query.lastIndexOf("?"));
+        System.out.println("gqp " + query);
+        query = query.substring(query.lastIndexOf("?") + 1);
         String[] pairs = query.split("&");
         for (String pair : pairs) {
             try {
                 int idx = pair.indexOf("=");
                 String n = URLDecoder.decode(pair.substring(0, idx), "UTF-8");
-                if (n.equals(name))
-                    return URLDecoder.decode(pair.substring(idx + 1), "UTF-8");
+                if (n.equals(name)) {
+                    String result = URLDecoder.decode(pair.substring(idx + 1), "UTF-8");
+                    System.out.println("gqpr " + result);
+                    return result;
+                }
             } catch (UnsupportedEncodingException ex) {
                 throw new RuntimeException(ex);
             }
-        }System.out.println("qpnf: "+name+" in "+query);
+        }
+        System.out.println("qpnf: " + name + " in " + query);
         return null;
     }
 
@@ -139,5 +146,28 @@ public class URLVerifier {
 
     public static boolean isFXML(String url) {
         return url.endsWith(".fxml") || url.startsWith("chrome://");
+    }
+    private static final Set<String> hidedHosts = new HashSet();
+
+    static {
+        hidedHosts.add("newtab");
+        hidedHosts.add("error");
+    }
+
+    public static boolean isHided(URL url) {
+        if (url.getProtocol().equals("chrome"))
+            return hidedHosts.contains(url.getHost());
+        return false;
+    }
+    private static final Set<String> sameUrlHosts = new HashSet();
+
+    static {
+        sameUrlHosts.add("error");
+    }
+
+    public static boolean isUrlKeeper(URL url) {
+        if (url.getProtocol().equals("chrome"))
+            return sameUrlHosts.contains(url.getHost());
+        return false;
     }
 }

@@ -19,18 +19,8 @@ import webfx.api.ObjectWrapper;
  *
  * @author attila
  */
- public class ProtocolChrome extends URLStreamHandler{
-    private static final Set<String> hidedHosts = new HashSet();
-static {
-    hidedHosts.add("newtab");
-    hidedHosts.add("error");
-}
-    public static boolean isHided(URL url) {
-        if(url.getProtocol().equals("chrome")) {
-            return hidedHosts.contains(url.getHost());
-        }
-        return false;
-    }
+ class ProtocolChrome extends URLStreamHandler{
+
     private final String name;
 
     ProtocolChrome(String name) {

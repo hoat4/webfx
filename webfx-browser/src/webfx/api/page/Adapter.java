@@ -117,6 +117,8 @@ public class Adapter {
     public <T> T query(String name) {
         switch (name.charAt(0)) {
             case '$':
+                return (T)getQueryParam(name.substring(1));
+            case '_':
                 ObjectWrapper ow = SharedSecrets.ow.get(getQueryParam(name.substring(1)));
                 if(ow == null)
                     return null;

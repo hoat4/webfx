@@ -33,7 +33,6 @@ import webfx.api.page.TabContext;
 import webfx.api.page.WindowContext;
 import webfx.api.plugin.BrowserTab;
 import webfx.api.plugin.PageContext;
-import webfx.internal.ProtocolChrome;
 import webfx.internal.URLVerifier;
 import webfx.render.fxml.FXTab;
 import webfx.render.fxml.WebFXView;
@@ -154,10 +153,16 @@ public class SwitchableTab implements BrowserTab, TabContext {
     }
     private final InvalidationListener titleListener = (ignored) -> titleProp.set(tab.titleProperty().get());
     private final InvalidationListener locListener = (ignored) -> {
-        if (ProtocolChrome.isHided(tab.locationProperty().get()))
+        URL newloc = tab.locationProperty().get();
+        if (URLVerifier.isUrlKeeper(newloc))
+            return;
+        if (URLVerifier.isHided(newloc)) {
+            System.out.println("Set4 locProp to null");
             locProp.set(null);
-        else
-            locProp.set(tab.locationProperty().get());
+        } else {
+            System.out.println("Set4 locprop to " + newloc);
+            locProp.set(newloc);
+        }
     };
     private final InvalidationListener contentListener = (ignored) -> contentProp.set(tab.contentProperty().get());
 
@@ -200,6 +205,8 @@ public class SwitchableTab implements BrowserTab, TabContext {
             try {
                 conn = destination.openConnection();
                 if (conn == null) {
+                    locProp.set(destination);
+                    System.out.println("Set2 locProp to " + destination);
                     showError("webfx.chromeuri.notfound", "Chrome URL not found: " + destination.toExternalForm());
                     return;
                 }
@@ -214,10 +221,14 @@ public class SwitchableTab implements BrowserTab, TabContext {
                 throw new RuntimeException(ex1);
             }
         titleProp.set(tab.titleProperty().get());
-        if (ProtocolChrome.isHided(destination))
-            locProp.set(null);
-        else
-            locProp.set(tab.locationProperty().get());
+        if (!URLVerifier.isUrlKeeper(destination))
+            if (URLVerifier.isHided(destination)) {
+                System.out.println("Set3 locProp to null");
+                locProp.set(null);
+            } else {
+                System.out.println("set3 locProp to " + tab.locationProperty().get());
+                locProp.set(tab.locationProperty().get());
+            }
         contentProp.set(tab.contentProperty().get());
         System.out.println("Set locProp to " + locProp.get());
 

@@ -55,7 +55,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.AnchorPane;
 import webfx.api.page.Adapter;
-import webfx.internal.ProtocolChrome;
 
 /**
  *
