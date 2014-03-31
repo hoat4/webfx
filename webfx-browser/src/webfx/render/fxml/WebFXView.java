@@ -72,6 +72,7 @@ import webfx.api.page.Adapter;
 import webfx.api.page.TabContext;
 import webfx.api.page.WindowContext;
 import webfx.api.plugin.PageContext;
+import webfx.app.WebFX;
 
 /**
  * {@literal WebFXView} is a {@link javafx.scene.Node} that manages an
@@ -82,6 +83,7 @@ import webfx.api.plugin.PageContext;
  * @author Bruno Borges <bruno.borges at oracle.com>
  */
 public class WebFXView extends AnchorPane {
+
     Adapter adapter;
     private static final Logger LOGGER = Logger.getLogger(WebFXView.class.getName());
     private FXMLLoader fxmlLoader;
@@ -95,6 +97,7 @@ public class WebFXView extends AnchorPane {
     public WindowContext window;
     public Properties parameters = new Properties();
     SecurityHolder secholder;
+
     public WebFXView() {
         setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         getStyleClass().add("webfx-view");
@@ -138,53 +141,93 @@ public class WebFXView extends AnchorPane {
         this.urlProperty.set(url);
     }
 
+    private class LoaderThread extends Thread {
+
+        Node pageNode;
+        private final FXMLLoader loader;
+
+        public LoaderThread(FXMLLoader loader) {
+            this.loader = loader;
+        }
+
+        @Override
+        public void run() {
+            try {
+                pageNode = loader.load();
+            } catch (IOException ex) {
+                navigationContext.showError("webfx.render.fxml", ex.toString());
+            }
+        }
+
+    }
+
     public final void load() {
-        Platform.runLater(() -> internalLoad());
+        internalLoad();
     }
 
     private void internalLoad() {
+        WebFX.perf("Loading " + urlProperty.getName());
         secholder = new SecurityHolder();
         pageContext = new PageContext(urlProperty.get());
 
         initLocalization();
-
         fxmlLoader = new FXMLLoader(pageContext.getLocation(), resourceBundle);
         fxmlLoader.setClassLoader(new URLClassLoader(((URLClassLoader) getClass().getClassLoader()).getURLs()));
         fxmlLoader.getNamespace().put("webfx", adapter = new Adapter(resourceBundle, navigationContext, secholder));
+        WebFX.perf("Page load inited, waiting for load and Nashorn...");
+        LoaderThread loader = new LoaderThread(fxmlLoader);
+        loader.start();
         try {
-            final Node loadedNode = (Node) fxmlLoader.load();
-            setTopAnchor(loadedNode, 0.0);
-            setBottomAnchor(loadedNode, 0.0);
-            setLeftAnchor(loadedNode, 0.0);
-            setRightAnchor(loadedNode, 0.0);
-
-            getChildren().add(loadedNode);
-
-            hackScriptEngine(fxmlLoader);
-
-            if (scriptEngine != null) {
-                // dirty javascript initializer
-        /*        ScriptEngineFactory      seFactory = scriptEngine.getFactory();
-                 LOGGER.log(Level.INFO, "ScriptEngine.LANGUAGE: {0}", seFactory.getLanguageName());
-                 LOGGER.log(Level.INFO, "ScriptEngine.LANGUAGE_VERSION: {0}", seFactory.getLanguageVersion());
-                 LOGGER.log(Level.INFO, "ScriptEngine.NAMES: {0}", seFactory.getNames());
-                 LOGGER.log(Level.INFO, "ScriptEngine.ENGINE: {0}", seFactory.getEngineName());
-                 LOGGER.log(Level.INFO, "ScriptEngine.ENGINE_VERSION: {0}", seFactory.getEngineVersion());
-                 LOGGER.log(Level.INFO, "ScriptEngine.FILENAMES: {0}", seFactory.getExtensions());
-                 LOGGER.log(Level.INFO, "ScriptEngine.toString: {0}", seFactory.toString());*/
-
-                Bindings wfxb = scriptEngine.getBindings(ScriptContext.GLOBAL_SCOPE);
-                wfxb.put("__webfx_i18n", resourceBundle);
-                wfxb.put("__webfx_navigation", navigationContext);
-
-                scriptEngine.eval("if (typeof $webfx == 'undefined') $webfx = {title:'Untitled'};");
-                scriptEngine.eval("if (typeof $webfx.initWebFX == 'function') $webfx.initWebFX();");
-                scriptEngine.eval("$webfx.i18n = __webfx_i18n; $webfx.navigation = __webfx_navigation");
-            }
-            loadTitle();
-        } catch (ScriptException | IOException ex) {
+            loader.join();
+        } catch (InterruptedException ex) {
+            WebFX.perf("InterruptedEx, noplooping while not loaded");
+            while (loader.pageNode == null);
+        }
+                        WebFX.perf("Page node loaded");
+        try {
+            WebFX.nashornLoader.join();
+        } catch (InterruptedException ex) {
             Logger.getLogger(WebFXView.class.getName()).log(Level.SEVERE, null, ex);
         }
+                WebFX.perf("Nashorn loaded");
+        Platform.runLater(() -> {
+            try {
+                final Node loadedNode = loader.pageNode;
+                WebFX.perf("Displaying page...");
+                setTopAnchor(loadedNode, 0.0);
+                setBottomAnchor(loadedNode, 0.0);
+                setLeftAnchor(loadedNode, 0.0);
+                setRightAnchor(loadedNode, 0.0);
+
+                getChildren().add(loadedNode);
+
+                hackScriptEngine(fxmlLoader);
+
+                if (scriptEngine != null) {
+                    // dirty javascript initializer
+        /*        ScriptEngineFactory      seFactory = scriptEngine.getFactory();
+                     LOGGER.log(Level.INFO, "ScriptEngine.LANGUAGE: {0}", seFactory.getLanguageName());
+                     LOGGER.log(Level.INFO, "ScriptEngine.LANGUAGE_VERSION: {0}", seFactory.getLanguageVersion());
+                     LOGGER.log(Level.INFO, "ScriptEngine.NAMES: {0}", seFactory.getNames());
+                     LOGGER.log(Level.INFO, "ScriptEngine.ENGINE: {0}", seFactory.getEngineName());
+                     LOGGER.log(Level.INFO, "ScriptEngine.ENGINE_VERSION: {0}", seFactory.getEngineVersion());
+                     LOGGER.log(Level.INFO, "ScriptEngine.FILENAMES: {0}", seFactory.getExtensions());
+                     LOGGER.log(Level.INFO, "ScriptEngine.toString: {0}", seFactory.toString());*/
+
+                    Bindings wfxb = scriptEngine.getBindings(ScriptContext.GLOBAL_SCOPE);
+                    wfxb.put("__webfx_i18n", resourceBundle);
+                    wfxb.put("__webfx_navigation", navigationContext);
+
+                    scriptEngine.eval("if (typeof $webfx == 'undefined') $webfx = {title:'Untitled'};");
+                    scriptEngine.eval("if (typeof $webfx.initWebFX == 'function') $webfx.initWebFX();");
+                    scriptEngine.eval("$webfx.i18n = __webfx_i18n; $webfx.navigation = __webfx_navigation");
+                }
+                loadTitle();
+            } catch (ScriptException ex) {
+                Logger.getLogger(WebFXView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            WebFX.perf("Loaded: " + urlProperty.get());
+        });
     }
 
     private void loadTitle() {

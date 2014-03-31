@@ -1,0 +1,34 @@
+4638	<clinit>
+4654	perf.log open
+4698	URL factory registered
+4704	main() begin
+5877	start() begin
+7718	Preloaders started
+7732	Locale loaded
+12226	Scene created
+19270	Stage showing
+19627	FXMLL created
+30675	BFX init begin in JavaFX Application Thread
+30702	Menu created
+31181	Binded reload disable
+31275	Binded urlField.focused
+31334	Inited tabs
+31339	Inited tab selection
+34522	Inited plusTab
+34992	SwitchableTab::goTo begin
+35126	Creating FXTab
+35340	Created FXTab
+35346	BrowserTab::go
+35665	Loading 
+35842	Page load inited, waiting for load and Nashorn...
+48665	Page node loaded
+48666	Nashorn loaded
+48680	SwitchableTab::goTo end
+48812	Opened first tab
+49008	BFX loaded
+49009	BFX getted
+49126	start() end
+50271	Displaying page...
+51417	Loaded: chrome://newtab
+51487	Loaded button icons
+52897	Keys set up

@@ -57,6 +57,7 @@ import webfx.api.SecurityHolder;
 import webfx.api.page.Adapter;
 import webfx.api.page.TabContext;
 import webfx.api.page.WindowContext;
+import webfx.app.WebFX;
 
 /**
  *
@@ -69,9 +70,11 @@ public class FXTab implements BrowserTab {
     private WindowContext tabManager;
 
     public FXTab(TabContext nav, WindowContext window) {
+        WebFX.perf("Creating FXTab");
         webfx = new WebFXRegion(nav, window);
         locationProperty.bind(webfx.locationProperty());
         contentProperty.set(webfx);
+        WebFX.perf("Created FXTab");
     }
 
     public FXTab(Locale locale, TabContext nav, WindowContext window) {

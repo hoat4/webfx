@@ -32,22 +32,27 @@ import javafx.stage.PopupWindow;
 public class MainMenu {
     public static final List<MenuItem> list = new ArrayList<>();
     private final BrowserFXController app;
-    private final ContextMenu menu = new ContextMenu();
-
+    private ContextMenu menu ;
+    private boolean inited;
     public MainMenu(BrowserFXController app) {
         this.app = app;
-        init();
     }
 
-    private void init() {
+    public void init() {
+        menu = new ContextMenu();
         menu.getItems().addAll(list);
+        inited = true;
+        System.out.println("Menu inited");
     }
 
     public void open(Button menuButton) {
+        System.out.println("Opening menu...");
+        if(!inited)init();
         if (menu.isShowing())
             menu.hide();
         else
             menu.show(menuButton, Side.BOTTOM, 0, 0);
+        System.out.println("Menu open");
     }
 
     

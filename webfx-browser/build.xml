@@ -50,4 +50,15 @@
     nbproject/build-impl.xml and nbproject/jfx-impl.xml.
 
     -->
+    
+    <!--<target name="-post-compile">
+        <path id="fxcompile">
+            <filelist>
+                <file name="build/classes"/>
+                <file name="${basedir}/lib/org.eclipse.fx.fxml.compiler_1.0.0-SNAPSHOT.jar"/>
+            </filelist>
+        </path>
+        <taskdef name="fxml-compiler" classpathref="fxcompile" classname="org.eclipse.fx.ide.fxml.compiler.ant.FXMLCompilerTask" />
+        <fxml-compiler sourcedir="src" destdir="build/generated-sources"/>
+    </target>-->
 </project>

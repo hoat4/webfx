@@ -81,7 +81,7 @@ import webfx.internal.BindingUtils;
  * @author Bruno Borges at oracle.com
  * @author attila at hontvari.net
  */
-public class BrowserFXController implements WindowContext {
+public class BrowserFXController implements WindowContext, Initializable {
 
     private static final Logger LOGGER = Logger.getLogger(BrowserFXController.class.getName());
     /**
@@ -187,16 +187,20 @@ public class BrowserFXController implements WindowContext {
         else
             Platform.runLater(task);
     }
-    
-    public void initialize() {
+
+    public void initialize(URL location, ResourceBundle resources) {
+        WebFX.perf("BFX init begin in " + Thread.currentThread().getName());
         menu = new MainMenu(this);
+        WebFX.perf("Menu created");
         reloadButton.disableProperty().bind(stopButton.disabledProperty().not());
+        WebFX.perf("Binded reload disable");
         urlField.focusedProperty().addListener((ov, oldValue, newValue) -> {
             if (newValue.booleanValue())
                 urlField.textProperty().unbind();
             else if (selectedBrowserTab() != null)
                 urlField.textProperty().bind(BindingUtils.convert(selectedBrowserTab().locationProperty()));
         });
+        WebFX.perf("Binded urlField.focused");
 
         tabPane.getTabs().addListener((ListChangeListener.Change<? extends Tab> change) -> {
             ObservableList<? extends Tab> tabs = change.getList();
@@ -213,6 +217,7 @@ public class BrowserFXController implements WindowContext {
         });
 
         selectionTab = tabPane.selectionModelProperty().getValue();
+        WebFX.perf("Inited tabs");
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             LOGGER.info("Tab selection changed");
@@ -228,22 +233,34 @@ public class BrowserFXController implements WindowContext {
                 stopButton.setDisable(!selectedBrowserTab.isLoading());
             }
         });
+        WebFX.perf("Inited tab selection");
 
-        final int size = 16;
-        setButtonIcon(menuButton, "gear", size);
-        setButtonIcon(stopButton, "stop", size);
-        setButtonIcon(backButton, "left", size);
-        setButtonIcon(forwardButton, "right", size);
-        setButtonIcon(reloadButton, "clock", size);
-
-        plusTab.setClosable(false);
+            plusTab.setClosable(false);
         plusTab.setContent(new Label());
         tabPane.getTabs().add(plusTab);
         plusTab.selectedProperty().addListener((a, b, val) -> {
             if (val)
                 newTab();
         });
+        WebFX.perf("Inited plusTab"); 
+        
         newTab();
+        WebFX.perf("Opened first tab");
+
+        final int size = 16;
+        Platform.runLater(() -> {
+            setButtonIcon(menuButton, "gear", size);
+            setButtonIcon(stopButton, "stop", size);
+            setButtonIcon(backButton, "left", size);
+            setButtonIcon(forwardButton, "right", size);
+            setButtonIcon(reloadButton, "clock", size);
+            WebFX.perf("Loaded button icons");
+        });
+
+  
+
+
+        Platform.runLater(menu::init);
     }
 
     private void setButtonIcon(Button button, String icon, int size) {

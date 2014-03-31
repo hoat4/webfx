@@ -167,6 +167,7 @@ public class SwitchableTab implements BrowserTab, TabContext {
     private final InvalidationListener contentListener = (ignored) -> contentProp.set(tab.contentProperty().get());
 
     private void goTo(String url, String title, boolean updateLocProp) {
+        WebFX.perf("SwitchableTab::goTo begin");
         if (tab != null) {
             tab.titleProperty().removeListener(titleListener);
             tab.locationProperty().removeListener(locListener);
@@ -236,7 +237,9 @@ public class SwitchableTab implements BrowserTab, TabContext {
         tab.locationProperty().addListener(locListener);
         tab.contentProperty().addListener(contentListener);
 
+        WebFX.perf("BrowserTab::go");
         tab.go(destination, url);
+        WebFX.perf("SwitchableTab::goTo end");
     }
 
     @Override

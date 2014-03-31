@@ -39,53 +39,103 @@
  */
 package webfx.app;
 
-import webfx.api.plugin.PluginRegistry;
+import com.sun.javafx.Logging;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.application.Preloader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javax.script.ScriptEngineManager;
 import webfx.api.extension.ExtensionRegistry;
+import webfx.api.plugin.PluginRegistry;
+import webfx.app.search.SearchGoogle;
 import webfx.app.ui.AnalogClock;
 import webfx.app.ui.NetworkInfo;
-import webfx.app.search.SearchGoogle;
 import webfx.internal.ExtendedURLConnFactory;
+
 /**
- * 
+ *
  * @author bruno
  * @author hoat4
  */
 public class WebFX extends Application {
-    private static final Logger LOGGER = Logger.getLogger(WebFX.class.getName());
+
+    private static final RuntimeMXBean rt = ManagementFactory.getRuntimeMXBean();
+    private static Writer perflog;
+    public static Thread nashornLoader;
     static {
+        long uptime = rt.getUptime();
+        try {
+            perflog = new BufferedWriter(new FileWriter("perf.log"));
+            perflog.write(uptime + "\t<clinit>\n");
+        } catch (IOException ex) {
+            perflog = null;
+            Logger.getLogger(WebFX.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        perf("perf.log open");
         ExtendedURLConnFactory.init();
-        ExtensionRegistry.putExtension("clock.analog", AnalogClock::new);
-        ExtensionRegistry.putExtension("network.info", NetworkInfo::new);
-        ExtensionRegistry.putExtension("search.google", SearchGoogle::new);
+        perf("URL factory registered");
     }
+
     @Override
     public void start(Stage stage) throws Exception {
+        perf("start() begin");
+        nashornLoader = new Thread(() -> {// ~300 ms faster startup
+            new ScriptEngineManager().getEngineByName("nashorn");
+        }, "Nashorn preloader");
+        Thread extensionLoader = new Thread(() -> {
+            ExtensionRegistry.putExtension("clock.analog", AnalogClock::new);
+            ExtensionRegistry.putExtension("network.info", NetworkInfo::new);
+            ExtensionRegistry.putExtension("search.google", SearchGoogle::new);
+        }, "WebFX extension loader");
+        nashornLoader.start();
+        extensionLoader.start();
+        perf("Preloaders started");
         Locale locale = getCurrentLocale();
+        perf("Locale loaded");
 
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("browser.fxml"), ResourceBundle.getBundle("webfx/app/browser", locale));
-        Parent root = (Parent) fxmlLoader.load();
-
-        BrowserFXController controller = fxmlLoader.getController();
-        controller.setLocale(locale);
-
-        Scene scene = new Scene(root);
-
-        BrowserShortcuts shortcuts = new BrowserShortcuts(scene);
-        shortcuts.setup(controller);
+        BorderPane rootPane = new BorderPane();
+        //rootPane.setCenter(new Label("Loading..."));
+        Scene scene = new Scene(rootPane, 800, 600);
+        perf("Scene created");
 
         stage.setTitle("WebFX Browser");
         stage.setScene(scene);
         stage.show();
+        extensionLoader.join();
+        perf("Stage showing");
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("browser.fxml"), ResourceBundle.getBundle("webfx/app/browser", locale));
+        perf("FXMLL created");
+        rootPane.setCenter(fxmlLoader.load());
+        perf("BFX loaded");
+        BrowserFXController controller = fxmlLoader.getController();
+        controller.setLocale(locale);
+
+        perf("BFX getted");
+
+        Platform.runLater(() -> {
+            BrowserShortcuts shortcuts = new BrowserShortcuts(scene);
+            shortcuts.setup(controller);
+            perf("Keys set up");
+        });
+        perf("start() end");
     }
 
     /**
@@ -97,7 +147,9 @@ public class WebFX extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        perf("main() begin");
         launch(args);
+        perf("main() end");
     }
 
     private Locale getCurrentLocale() {
@@ -112,19 +164,28 @@ public class WebFX extends Application {
         }
 
         Locale locale = Locale.getDefault();
-        LOGGER.log(Level.INFO, "Locale: {0}", locale);
+        System.out.println("Locale: " + locale);
 
         if ((languageParamObj != null)
-                && ((String) languageParamObj).trim().length() > 0) {
+                && ((String) languageParamObj).trim().length() > 0)
             if ((countryParamObj != null)
-                    && ((String) countryParamObj).trim().length() > 0) {
+                    && ((String) countryParamObj).trim().length() > 0)
                 locale = new Locale(((String) languageParamObj).trim(),
                         ((String) countryParamObj).trim());
-            } else {
+            else
                 locale = new Locale(((String) languageParamObj).trim());
-            }
-        }
 
         return locale;
+    }
+
+    public static void perf(String name) {
+        if (perflog == null)
+            return;
+        try {
+            perflog.write(rt.getUptime() + "\t" + name + '\n');
+            perflog.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(WebFX.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
