@@ -100,13 +100,16 @@ public class SwitchableTab implements BrowserTab, TabContext {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null)
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         final SwitchableTab other = (SwitchableTab) obj;
-        if (!Objects.equals(this.tab, other.tab))
+        if (!Objects.equals(this.tab, other.tab)) {
             return false;
+        }
         return true;
     }
 
@@ -154,8 +157,9 @@ public class SwitchableTab implements BrowserTab, TabContext {
     private final InvalidationListener titleListener = (ignored) -> titleProp.set(tab.titleProperty().get());
     private final InvalidationListener locListener = (ignored) -> {
         URL newloc = tab.locationProperty().get();
-        if (URLVerifier.isUrlKeeper(newloc))
+        if (URLVerifier.isUrlKeeper(newloc)) {
             return;
+        }
         if (URLVerifier.isHided(newloc)) {
             System.out.println("Set4 locProp to null");
             locProp.set(null);
@@ -175,15 +179,12 @@ public class SwitchableTab implements BrowserTab, TabContext {
         }
         URL destination = null;
         BrowserTab impl;
-        if (URLVerifier.isFXML(url))
-            impl = new FXTab(locale, this, app).setTitle(title);
-        else
-            impl = new HTMLTab(app);
+        impl = URLVerifier.createTab(locale, this, app, title, url);
         tab = impl;
         impl.setWindowContext(app);
         String errorLoc = null;
         Throwable error = null;
-        if (url.startsWith("file:/") || url.startsWith("jar:/") || url.startsWith("wfx:/") || url.startsWith("http:/") || url.startsWith("https:/") || url.startsWith("chrome://"))
+        if (url.startsWith("file:/") || url.startsWith("jar:/") || url.startsWith("wfx:/") || url.startsWith("http:/") || url.startsWith("https:/") || url.startsWith("chrome://")) {
             try {
                 destination = new URL(url);
             } catch (MalformedURLException ex) {
@@ -191,7 +192,7 @@ public class SwitchableTab implements BrowserTab, TabContext {
                 errorLoc = "webfx.page.urlparse";
                 error = ex;
             }
-        else {
+        } else {
             URL basePath = tab.getPageContext().getBasePath();
             try {
                 destination = new URL(basePath.toString() + "/" + url);
@@ -201,28 +202,19 @@ public class SwitchableTab implements BrowserTab, TabContext {
                 error = ex;
             }
         }
-        if (destination != null && destination.getProtocol().equals("chrome")) {
-            URLConnection conn;
-            try {
-                conn = destination.openConnection();
-                if (conn == null) {
-                    locProp.set(destination);
-                    System.out.println("Set2 locProp to " + destination);
-                    showError("webfx.chromeuri.notfound", "Chrome URL not found: " + destination.toExternalForm());
-                    return;
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(WebFXView.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        if (URLVerifier.verify(destination, this)) {
+            locProp.set(destination);
+            return;
         }
-        if (errorLoc != null || error != null)
+        if (errorLoc != null || error != null) {
             try {
                 destination = new URL("chrome://error?details=" + ObjectWrapper.create(error).allowRead(tab.security()).uuid() + "&code=" + errorLoc);
             } catch (MalformedURLException ex1) {
                 throw new RuntimeException(ex1);
             }
+        }
         titleProp.set(tab.titleProperty().get());
-        if (!URLVerifier.isUrlKeeper(destination))
+        if (!URLVerifier.isUrlKeeper(destination)) {
             if (URLVerifier.isHided(destination)) {
                 System.out.println("Set3 locProp to null");
                 locProp.set(null);
@@ -230,6 +222,7 @@ public class SwitchableTab implements BrowserTab, TabContext {
                 System.out.println("set3 locProp to " + tab.locationProperty().get());
                 locProp.set(tab.locationProperty().get());
             }
+        }
         contentProp.set(tab.contentProperty().get());
         System.out.println("Set locProp to " + locProp.get());
 
@@ -278,5 +271,10 @@ public class SwitchableTab implements BrowserTab, TabContext {
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("System don't support UTF-8", ex);
         }
+    }
+
+    @Override
+    public void search(String text) {
+        go("http://www.google.com/search?q=" + URLEncoder.encode(text) + "&ie=utf-8&oe=utf-8&aq=t");
     }
 }

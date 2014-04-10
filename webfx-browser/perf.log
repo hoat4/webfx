@@ -1,34 +1,208 @@
-4638	<clinit>
-4654	perf.log open
-4698	URL factory registered
-4704	main() begin
-5877	start() begin
-7718	Preloaders started
-7732	Locale loaded
-12226	Scene created
-19270	Stage showing
-19627	FXMLL created
-30675	BFX init begin in JavaFX Application Thread
-30702	Menu created
-31181	Binded reload disable
-31275	Binded urlField.focused
-31334	Inited tabs
-31339	Inited tab selection
-34522	Inited plusTab
-34992	SwitchableTab::goTo begin
-35126	Creating FXTab
-35340	Created FXTab
-35346	BrowserTab::go
-35665	Loading 
-35842	Page load inited, waiting for load and Nashorn...
-48665	Page node loaded
-48666	Nashorn loaded
-48680	SwitchableTab::goTo end
-48812	Opened first tab
-49008	BFX loaded
-49009	BFX getted
-49126	start() end
-50271	Displaying page...
-51417	Loaded: chrome://newtab
-51487	Loaded button icons
-52897	Keys set up
+521	<clinit>
+521	perf.log open
+523	URL factory registered
+525	main() begin
+583	start() begin
+634	Preloaders started
+635	Locale loaded
+796	Scene created
+943	Stage showing
+958	FXMLL created
+1285	BFX init begin in JavaFX Application Thread
+1285	Menu created
+1314	Binded reload disable
+1316	Binded urlField.focused
+1317	Inited tabs
+1317	Inited tab selection
+1340	Inited plusTab
+1349	SwitchableTab::goTo begin
+1363	BrowserTab::go
+1372	SwitchableTab::goTo end
+1390	Opened first tab
+1398	BFX loaded
+1398	BFX getted
+1399	start() end
+1441	Loaded button icons
+1453	Keys set up
+8229	SwitchableTab::goTo begin
+8231	Creating FXTab
+8236	Created FXTab
+8239	SwitchableTab::goTo begin
+8239	Creating FXTab
+8240	Created FXTab
+8240	BrowserTab::go
+8243	Loading 
+8250	Page load inited, waiting for load and Nashorn...
+8591	Page node loaded
+8591	Nashorn loaded
+8593	SwitchableTab::goTo end
+8598	Displaying page...
+8632	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+15210	SwitchableTab::goTo begin
+15211	BrowserTab::go
+15211	SwitchableTab::goTo end
+19022	SwitchableTab::goTo begin
+19022	Creating FXTab
+19022	Created FXTab
+19023	SwitchableTab::goTo begin
+19023	Creating FXTab
+19023	Created FXTab
+19023	BrowserTab::go
+19024	Loading 
+19031	Page load inited, waiting for load and Nashorn...
+19104	Page node loaded
+19104	Nashorn loaded
+19104	SwitchableTab::goTo end
+19106	Displaying page...
+19136	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+19521	SwitchableTab::goTo begin
+19522	Creating FXTab
+19522	Created FXTab
+19522	SwitchableTab::goTo begin
+19522	Creating FXTab
+19523	Created FXTab
+19523	BrowserTab::go
+19523	Loading 
+19529	Page load inited, waiting for load and Nashorn...
+19574	Page node loaded
+19574	Nashorn loaded
+19574	SwitchableTab::goTo end
+19577	SwitchableTab::goTo begin
+19577	Creating FXTab
+19577	Created FXTab
+19578	SwitchableTab::goTo begin
+19578	Creating FXTab
+19578	Created FXTab
+19578	BrowserTab::go
+19578	Loading 
+19579	Page load inited, waiting for load and Nashorn...
+19622	Page node loaded
+19622	Nashorn loaded
+19622	SwitchableTab::goTo end
+19625	SwitchableTab::goTo begin
+19625	Creating FXTab
+19625	Created FXTab
+19625	SwitchableTab::goTo begin
+19625	Creating FXTab
+19625	Created FXTab
+19625	BrowserTab::go
+19626	Loading 
+19627	Page load inited, waiting for load and Nashorn...
+19668	Page node loaded
+19668	Nashorn loaded
+19668	SwitchableTab::goTo end
+19673	SwitchableTab::goTo begin
+19673	Creating FXTab
+19673	Created FXTab
+19673	SwitchableTab::goTo begin
+19673	Creating FXTab
+19673	Created FXTab
+19673	BrowserTab::go
+19674	Loading 
+19676	Page load inited, waiting for load and Nashorn...
+19711	Page node loaded
+19711	Nashorn loaded
+19711	SwitchableTab::goTo end
+19714	SwitchableTab::goTo begin
+19714	Creating FXTab
+19714	Created FXTab
+19714	SwitchableTab::goTo begin
+19714	Creating FXTab
+19714	Created FXTab
+19714	BrowserTab::go
+19714	Loading 
+19716	Page load inited, waiting for load and Nashorn...
+19899	Page node loaded
+19899	Nashorn loaded
+19899	SwitchableTab::goTo end
+19902	SwitchableTab::goTo begin
+19902	Creating FXTab
+19902	Created FXTab
+19902	SwitchableTab::goTo begin
+19902	Creating FXTab
+19902	Created FXTab
+19902	BrowserTab::go
+19903	Loading 
+19904	Page load inited, waiting for load and Nashorn...
+19942	Page node loaded
+19942	Nashorn loaded
+19942	SwitchableTab::goTo end
+19944	Displaying page...
+19963	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+19963	Displaying page...
+19981	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+19981	Displaying page...
+19995	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+19995	Displaying page...
+20010	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+20010	Displaying page...
+20024	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+20024	Displaying page...
+20039	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+31704	Loading 
+31708	Page load inited, waiting for load and Nashorn...
+31750	Page node loaded
+31750	Nashorn loaded
+31751	Displaying page...
+31765	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+33008	Loading 
+33011	Page load inited, waiting for load and Nashorn...
+33049	Page node loaded
+33049	Nashorn loaded
+33050	Displaying page...
+33063	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+33536	Loading 
+33539	Page load inited, waiting for load and Nashorn...
+33581	Page node loaded
+33581	Nashorn loaded
+33582	Displaying page...
+33596	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+33960	Loading 
+33963	Page load inited, waiting for load and Nashorn...
+34012	Page node loaded
+34012	Nashorn loaded
+34013	Displaying page...
+34027	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+34536	Loading 
+34539	Page load inited, waiting for load and Nashorn...
+34585	Page node loaded
+34585	Nashorn loaded
+34586	Displaying page...
+34599	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+35248	Loading 
+35251	Page load inited, waiting for load and Nashorn...
+35284	Page node loaded
+35284	Nashorn loaded
+35285	Displaying page...
+35299	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+36136	Loading 
+36141	Page load inited, waiting for load and Nashorn...
+36191	Page node loaded
+36191	Nashorn loaded
+36192	Displaying page...
+36207	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+36704	Loading 
+36707	Page load inited, waiting for load and Nashorn...
+36750	Page node loaded
+36750	Nashorn loaded
+36751	Displaying page...
+36764	Loaded: chrome://error?details=Chrome+URL+not+found%3A+chrome%3A%2F%2Fasdf&code=webfx.chromeuri.notfound
+82245	SwitchableTab::goTo begin
+82246	BrowserTab::go
+82247	SwitchableTab::goTo end
+84574	SwitchableTab::goTo begin
+84574	BrowserTab::go
+84575	SwitchableTab::goTo end
+86297	SwitchableTab::goTo begin
+86297	BrowserTab::go
+86298	SwitchableTab::goTo end
+88209	SwitchableTab::goTo begin
+88211	BrowserTab::go
+88212	SwitchableTab::goTo end
+90185	SwitchableTab::goTo begin
+90186	BrowserTab::go
+90186	SwitchableTab::goTo end
+91697	SwitchableTab::goTo begin
+91697	BrowserTab::go
+91698	SwitchableTab::goTo end
+95055	main() end

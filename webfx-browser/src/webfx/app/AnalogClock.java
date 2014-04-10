@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package webfx.app.ui;
+package webfx.app;
 
 import java.util.Calendar;
 import javafx.animation.KeyFrame;

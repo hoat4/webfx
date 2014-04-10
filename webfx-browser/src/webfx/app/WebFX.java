@@ -65,9 +65,8 @@ import javax.script.ScriptEngineManager;
 import webfx.api.extension.ExtensionRegistry;
 import webfx.api.plugin.PluginRegistry;
 import webfx.app.search.SearchGoogle;
-import webfx.app.ui.AnalogClock;
-import webfx.app.ui.NetworkInfo;
 import webfx.internal.ExtendedURLConnFactory;
+import webfx.render.builtin.PageNewtab;
 
 /**
  *
@@ -102,7 +101,8 @@ public class WebFX extends Application {
         Thread extensionLoader = new Thread(() -> {
             ExtensionRegistry.putExtension("clock.analog", AnalogClock::new);
             ExtensionRegistry.putExtension("network.info", NetworkInfo::new);
-            ExtensionRegistry.putExtension("search.google", SearchGoogle::new);
+            SearchGoogle.init();
+            PageNewtab.init();
         }, "WebFX extension loader");
         nashornLoader.start();
         extensionLoader.start();

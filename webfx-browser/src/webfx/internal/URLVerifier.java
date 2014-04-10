@@ -39,15 +39,26 @@
  */
 package webfx.internal;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import webfx.api.extension.ExtensionRegistry;
+import webfx.api.page.TabContext;
+import webfx.api.plugin.BrowserTab;
+import webfx.app.BrowserFXController;
+import webfx.app.SwitchableTab;
+import webfx.render.fxml.FXTab;
+import webfx.render.fxml.WebFXView;
+import webfx.render.html.HTMLTab;
 
 /**
  *
@@ -76,14 +87,45 @@ public class URLVerifier {
         return null;
     }
 
+    public static BrowserTab createTab(Locale locale, SwitchableTab aThis, BrowserFXController app, String title, String url) {
+        if (ExtensionResolver.has("url." + url)) {
+            return (BrowserTab) ExtensionResolver.EXTENSIONS.get("url." + url).apply(aThis);
+        }
+        if (isFXML(url)) {
+            return new FXTab(locale, aThis, app).setTitle(title);
+        } else {
+            return new HTMLTab(app);
+        }
+    }
+
+    public static boolean verify(URL destination, SwitchableTab tab) {
+        if(destination == null || ExtensionResolver.has("url."+destination.toExternalForm()))
+                return false;
+        if (destination.getProtocol().equals("chrome")) {
+            URLConnection conn;
+            try {
+                conn = destination.openConnection();
+                if (conn == null) {
+                    System.out.println("Set2 locProp to " + destination);
+                    tab.showError("webfx.chromeuri.notfound", "Chrome URL not found: " + destination.toExternalForm());
+                    return true;
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(WebFXView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return false;
+    }
+
     private URI location;
     private URI basePath;
     private String pageName;
     private boolean fxml;
 
     public URLVerifier(String location) throws URISyntaxException {
-        if (!location.startsWith("http://") && !location.startsWith("https://") && !location.startsWith("chrome://"))
+        if (!location.startsWith("http://") && !location.startsWith("https://") && !location.startsWith("chrome://")) {
             location = "http://" + location;
+        }
 
         this.location = new URI(location);
         this.basePath = extractBasePath();
@@ -155,8 +197,9 @@ public class URLVerifier {
     }
 
     public static boolean isHided(URL url) {
-        if (url.getProtocol().equals("chrome"))
+        if (url.getProtocol().equals("chrome")) {
             return hidedHosts.contains(url.getHost());
+        }
         return false;
     }
     private static final Set<String> sameUrlHosts = new HashSet();
@@ -166,8 +209,9 @@ public class URLVerifier {
     }
 
     public static boolean isUrlKeeper(URL url) {
-        if (url.getProtocol().equals("chrome"))
+        if (url.getProtocol().equals("chrome")) {
             return sameUrlHosts.contains(url.getHost());
+        }
         return false;
     }
 }

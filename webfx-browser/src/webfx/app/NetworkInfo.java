@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package webfx.app.ui;
+package webfx.app;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,17 +27,17 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
 import webfx.api.page.Adapter;
-import webfx.api.page.Extension;
 import webfx.api.page.OS;
 
 /**
  *
  * @author attila
  */
-public class NetworkInfo extends Extension {
+public class NetworkInfo {
+    private final Adapter context;
 
     public NetworkInfo(Adapter context) {
-        super(context);
+        this.context = context;
     }
     public Gateway defaultGateway;
 

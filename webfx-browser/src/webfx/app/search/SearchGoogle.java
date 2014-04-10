@@ -9,6 +9,7 @@ package webfx.app.search;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import javafx.scene.image.Image;
+import webfx.api.extension.ExtensionRegistry;
 import webfx.api.page.Adapter;
 
 /**
@@ -17,6 +18,11 @@ import webfx.api.page.Adapter;
  */
 public class SearchGoogle {
     private static final Image LOGO = new Image("/external/logo11w.png");
+
+    public static void init() {
+            ExtensionRegistry.putExtension("search.google", SearchGoogle::new);
+            ExtensionRegistry.putExtension("search.google.logo", () -> LOGO);
+    }
     private final Adapter context;
     public SearchGoogle(Adapter context) {
         this.context = context;

@@ -53,6 +53,7 @@ import webfx.api.SecurityHolder;
 import webfx.api.extension.ExtensionRegistry;
 import webfx.api.plugin.PluginRegistry;
 import webfx.app.SharedSecrets;
+import webfx.internal.ExtensionResolver;
 import webfx.internal.URLVerifier;
 
 /**
@@ -87,7 +88,7 @@ public class Adapter {
      * @throws ExtensionNotFoundException if the extension not found
      */
     public <T> T create(String type) throws ExtensionNotFoundException {
-        Function<Adapter, T> factory = (Function<Adapter, T>) ExtensionRegistry.EXTENSIONS.get(type);
+        Function<Adapter, T> factory = (Function<Adapter, T>) (Function<? extends Object, T>) ExtensionResolver.EXTENSIONS.get(type);
         if (factory == null)
             throw new ExtensionNotFoundException("Extension " + type + " not found");
         else

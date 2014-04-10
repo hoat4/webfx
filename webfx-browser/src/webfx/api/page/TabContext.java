@@ -90,4 +90,6 @@ public interface TabContext {
     WindowContext getWindow();
     URL getRealURL();
     void showError(String code, String details);
+
+    void search(String text);
 }

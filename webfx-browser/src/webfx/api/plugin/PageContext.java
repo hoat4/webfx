@@ -84,10 +84,10 @@ public class PageContext {
         pageName = file.substring(lastSlash + 1);
         int indexOfExtension = pageName.indexOf('.');
         if (indexOfExtension != 1) {
-            String extension = file.substring(file.lastIndexOf('.') + 1);
+            /*String extension = file.substring(file.lastIndexOf('.') + 1);
 
-            if (!"fxml".equals(extension))
-                throw new IllegalArgumentException("This component only loads FXML pages, not " + extension + " files. ");
+           if (!"fxml".equals(extension))
+                throw new IllegalArgumentException("This component only loads FXML pages, not " + extension + " files. ");*/
 
             pageName = pageName.substring(0, indexOfExtension);
         }
